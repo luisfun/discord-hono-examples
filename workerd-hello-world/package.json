@@ -2,8 +2,10 @@
 	"name": "workerd-hello-world",
 	"version": "0.0.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
-		"deploy": "wrangler deploy",
+		"register": "tsc && node --env-file=.env dist/register.js",
+		"deploy": "wrangler deploy --minify",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
 		"test": "vitest",
@@ -12,8 +14,13 @@
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.6.4",
 		"@cloudflare/workers-types": "^4.20250204.0",
+		"@types/node": "^22.13.4",
+		"discord-api-types": "^0.37.119",
 		"typescript": "^5.5.2",
 		"vitest": "~2.1.9",
 		"wrangler": "^3.109.0"
+	},
+	"dependencies": {
+		"discord-hono": "^0.16.1"
 	}
 }
