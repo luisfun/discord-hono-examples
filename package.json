@@ -1,0 +1,13 @@
+{
+  "name": "discord-hono-examples",
+  "version": "0.0.0",
+  "author": "Luis (https://github.com/luisfun)",
+  "license": "MIT",
+  "scripts": {
+    "fix": "biome check --write .",
+    "fix:unsafe": "biome check --write --unsafe ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4"
+  }
+}
