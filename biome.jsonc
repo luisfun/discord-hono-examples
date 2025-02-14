@@ -19,6 +19,6 @@
     }
   },
   "files": {
-    "ignore": ["dist", "./package.json"]
+    "ignore": ["dist", "package.json", "worker-configuration.d.ts"]
   }
 }
