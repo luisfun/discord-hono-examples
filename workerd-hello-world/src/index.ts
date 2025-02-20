@@ -1,7 +1,7 @@
 import { Button, Components, DiscordHono } from 'discord-hono'
 
 type AppEnv = {
-  Binding: Env
+  Bindings: Env
   Variables: {
     name?: string
   }
