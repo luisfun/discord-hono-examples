@@ -1,13 +1,11 @@
-import { Command, Option, register } from 'discord-hono'
-
-const commands = [
-  new Command('hello', 'response world'),
-  new Command('help', 'response help').options(new Option('text', 'with text')),
-]
+// src/register.ts
+import { register } from 'discord-hono'
+import * as handlers from './handlers/index.js'
+import { factory } from './init.js'
 
 register(
-  commands,
+  factory.getCommands(Object.values(handlers)),
   process.env.DISCORD_APPLICATION_ID,
   process.env.DISCORD_TOKEN,
-  //process.env.DISCORD_TEST_GUILD_ID,
+  process.env.DISCORD_TEST_GUILD_ID,
 )

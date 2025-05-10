@@ -22,7 +22,11 @@
     /* Type Checking */
     "strict": true,
     /* Completeness */
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    /* tsc Compile */
+    //"allowImportingTsExtensions": true,
+    //"rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["src/**/*"],
   "exclude": ["test"]
