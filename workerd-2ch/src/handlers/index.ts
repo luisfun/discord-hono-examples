@@ -1,4 +1,3 @@
 export * from './2ch.js'
 export * from './help.js'
-export * from './init-db.js' // 初期化したらコメントアウト
-export * from './utils.js'
+// export * from './init-db.js' // 初期化したらコメントアウト

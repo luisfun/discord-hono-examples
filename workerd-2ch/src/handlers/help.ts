@@ -1,17 +1,17 @@
-import { Button, Command, Components, Option } from 'discord-hono'
+import { Button, Command, Content, Layout } from 'discord-hono'
 import { factory } from '../init.js'
-import { component_delete } from './utils.js'
 
-type Var = { text?: string }
-
-export const command_help = factory.command<Var>(
-  new Command('help', 'response help').options(new Option('text', 'with text')),
-  c =>
-    c.res({
-      content: `text: ${c.var.text}\n${c.interaction.guild_id}`,
-      components: new Components().row(
-        new Button('https://discord-hono.luis.fun', ['📑', 'Docs'], 'Link'),
-        component_delete.component,
+export const command_help = factory.command(new Command('help', 'ヘルプ'), c =>
+  c.flags('EPHEMERAL', 'IS_COMPONENTS_V2').res({
+    components: [
+      new Layout("Separator"),
+      new Content('### /2ch\n- text: 文字を送信\n- image: 画像を送信'),
+      new Layout("Separator"),
+      new Content(
+        '### クロス鯖\nクロスサーバーが設定されている場合、/2chコマンドで送信したメッセージが他のサーバーにも送信されます。',
       ),
-    }),
+      new Layout("Separator"),
+      new Layout('Action Row').components(new Button('https://luis.fun', '開発者', 'Link')),
+    ],
+  }),
 )
