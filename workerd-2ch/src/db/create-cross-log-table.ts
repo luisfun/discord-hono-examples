@@ -1,3 +1,11 @@
+export type CrossLogTableColumns = {
+  id: number
+  guild_id: string
+  user_id: string
+  message?: string
+  created_at: number
+}
+
 /**
  * table name: _{cross_guild_id}
  *
@@ -6,6 +14,6 @@
 export const createCrossLogTable = (db: D1Database, cross_guild_id: string) =>
   db
     .prepare(
-      `CREATE TABLE IF NOT EXISTS _${cross_guild_id} (id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id TEXT, user_id TEXT, message TEXT, created_at INTEGER)`,
+      `CREATE TABLE IF NOT EXISTS _${cross_guild_id} (id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id TEXT NOT NULL, user_id TEXT NOT NULL, message TEXT, created_at INTEGER NOT NULL)`,
     )
     .run()
