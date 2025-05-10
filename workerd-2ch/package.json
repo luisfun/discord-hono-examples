@@ -1,0 +1,22 @@
+{
+  "name": "workerd-2ch",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "register": "tsc && node --env-file=.env dist/register.js",
+    "deploy": "wrangler deploy --minify",
+    "log": "wrangler tail",
+    "cf-typegen": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250510.0",
+    "@types/node": "^22.15.17",
+    "discord-api-types": "^0.38.4",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.14.4"
+  },
+  "dependencies": {
+    "discord-hono": "^0.19.0"
+  }
+}
