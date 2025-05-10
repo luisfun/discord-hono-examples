@@ -1,4 +1,4 @@
-import { type GuildTableColumns, tableName } from './create-guild-table'
+import { type GuildTableColumns, tableName } from './create-guild-table.js'
 
 export const getCrossGuild = (db: D1Database, cross_guild_id: string | undefined) => {
   if (!cross_guild_id) return []

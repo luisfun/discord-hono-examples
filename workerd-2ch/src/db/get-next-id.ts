@@ -1,4 +1,4 @@
-import type { CrossLogTableColumns } from './create-cross-log-table'
+import type { CrossLogTableColumns } from './create-cross-log-table.js'
 
 export const getNextId = (db: D1Database, cross_guild_id: string | undefined) => {
   if (!cross_guild_id) return null

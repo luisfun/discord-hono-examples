@@ -1,4 +1,4 @@
-import { type GuildTableColumns, tableName } from './create-guild-table'
+import { type GuildTableColumns, tableName } from './create-guild-table.js'
 
 export const getGuild = (db: D1Database, guild_id: string | undefined) => {
   if (!guild_id) return null
