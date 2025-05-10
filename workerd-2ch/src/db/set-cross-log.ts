@@ -5,12 +5,13 @@ const maxLog = 100
  */
 export const setCrossLog = (
   db: D1Database,
-  cross_guild_id: string,
-  guild_id: string,
-  user_id: string,
+  cross_guild_id: string | undefined,
+  guild_id: string | undefined,
+  user_id: string | undefined,
   message: string | undefined,
-) =>
-  db.batch([
+) => {
+  if (!cross_guild_id || !guild_id || !user_id) return
+  return db.batch([
     db
       .prepare(`INSERT INTO _${cross_guild_id} (guild_id, user_id, message, created_at) VALUES (?, ?, ?, ?)`)
       .bind(guild_id, user_id, message ?? null, Date.now()),
@@ -24,3 +25,4 @@ export const setCrossLog = (
       )
     `),
   ])
+}
