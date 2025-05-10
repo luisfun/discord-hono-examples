@@ -1,0 +1,11 @@
+/**
+ * table name: _{cross_guild_id}
+ *
+ * columns: id, guild_id, user_id, message, created_at
+ */
+export const createCrossLogTable = (db: D1Database, cross_guild_id: string) =>
+  db
+    .prepare(
+      `CREATE TABLE IF NOT EXISTS _${cross_guild_id} (id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id TEXT, user_id TEXT, message TEXT, created_at INTEGER)`,
+    )
+    .run()
