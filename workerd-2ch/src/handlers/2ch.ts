@@ -11,20 +11,19 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
     c.flags('EPHEMERAL').resDefer(async c => {
       await c.followup()
       const channels = [c.interaction.channel.id]
-      const { text, image } = c.var
-      const time = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }).replace(/\//g, '-')
-      const imageURL = (c.interaction.data as APIChatInputApplicationCommandInteractionData).resolved?.attachments?.[
-        image ?? 0
+      // message item
+      const time = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
+      const url = (c.interaction.data as APIChatInputApplicationCommandInteractionData).resolved?.attachments?.[
+        c.var.image ?? 0
       ]?.url
-      for (const channel of channels) {
-        await c.rest('POST', _channels_$_messages, [channel], {
-          flags: 1 << 15, // IS_COMPONENTS_V2
-          components: [
-            new Content(`-# **123：以下、VIPがお送りします：${time}**`),
-            new Content(text),
-            imageURL ? new Content(imageURL, 'Media Gallery') : null,
-          ].filter(e => !!e),
-        })
-      }
+      // message data
+      const flags = 1 << 15 // IS_COMPONENTS_V2
+      const components = [
+        new Content(`-# **123：以下、VIPがお送りします：${time}**`),
+        new Content(c.var.text),
+        url ? new Content(url, 'Media Gallery') : null,
+      ].filter(e => !!e)
+      // send message
+      for (const channel of channels) await c.rest('POST', _channels_$_messages, [channel], { flags, components })
     }),
 )
