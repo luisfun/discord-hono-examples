@@ -21,6 +21,8 @@ import { factory } from '../init.js'
 
 type SwitchCustomId = 'up' | 'breakup' | 'exit'
 
+const MAX_CROSS_GUILD = 10
+
 const getStatusMessage = async (c: CommandContext | ComponentContext | ModalContext) => {
   // get database data
   const guild = await getGuild(c.env.DB, c.interaction.guild_id)
@@ -45,8 +47,12 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
     component_switch_cross.component.label(
       !cross_guild_id ? 'クロス鯖を立てる' : guild_id === cross_guild_id ? 'クロス鯖を解散' : 'クロス鯖から脱退',
     )
-    // component_switch_cross.component.style(!cross_guild_id ? "Primary" : "Danger")
+    // component_switch_cross.component.style(!cross_guild_id ? "Primary" : "Danger") // discord-hono v0.19.2
     if (guild_id !== cross_guild_id) component_invite_cross.component.disabled()
+  }
+  if (cross.length >= MAX_CROSS_GUILD) {
+    component_invite_cross.component.label('クロス鯖の上限')
+    component_invite_cross.component.disabled()
   }
 
   // message json
@@ -113,10 +119,12 @@ export const component_switch_cross = factory.component<{ custom_id: SwitchCusto
             await createCrossLogTable(c.env.DB, c.interaction.guild_id)
             await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, c.interaction.guild_id)
             break
-          case 'breakup':
+          case 'breakup': {
             await deleteCrossLogTable(c.env.DB, c.interaction.guild_id)
-            await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, undefined)
+            const cross = await getCrossGuild(c.env.DB, c.interaction.guild_id)
+            await Promise.all(cross.map(g => setGuild(c.env.DB, g.guild_id, g.guild_name, g.channel_id, undefined)))
             break
+          }
           case 'exit':
             await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, undefined)
             break
@@ -154,7 +162,7 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
         // message item
         const failedMessage = !inviteGuild ? '対象のサーバーが見つかりません' : !c.interaction.guild_id ? '不明' : ''
         const { embeds, components } = await getStatusMessage(c)
-        if (failedMessage) embeds[0].fields({ name: '⚠️エラー', value: failedMessage })
+        if (failedMessage) embeds[0].fields({ name: '⚠️招待エラー', value: failedMessage })
 
         // modalはupdateできないため、restでメッセージを更新する
         await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
