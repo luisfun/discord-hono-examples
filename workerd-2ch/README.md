@@ -5,8 +5,8 @@
 ## 管理者向け
 
 1. 招待URLからサーバーへ招待
-2. `/admin`コマンドを管理者以外が触らないように設定
-  - サーバー設定 > 連携サービス > `/admin`コマンドの設定
+2. `/admin`コマンドを管理者以外が触らないように設定  
+  サーバー設定 > 連携サービス > `/admin`コマンドの設定
 3. `/admin`コマンドから各設定をする
 
 ### クロスサーバー
@@ -31,5 +31,5 @@
 
 初期化について
 
-`init-db.ts`にDiscord Botのコマンドで初期化するコードが含まれています。  
+[`init-db.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/init-db.ts)にDiscord Botのコマンドで初期化するコードが含まれています。  
 [`index.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/index.ts)のコメントアウトを解除して有効化してください。
