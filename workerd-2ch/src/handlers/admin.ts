@@ -8,60 +8,60 @@ import {
   type ModalContext,
   Select,
   TextInput,
+  _channels_$_messages_$,
   _guilds_$,
 } from 'discord-hono'
 import { createCrossLogTable } from '../db/create-cross-log-table.js'
-import type { GuildTableColumns } from '../db/create-guild-table.js'
 import { deleteCrossLogTable } from '../db/delete-cross-log-table.js'
 import { getCrossGuild } from '../db/get-cross-guild.js'
 import { getGuild } from '../db/get-guild.js'
 import { setGuild } from '../db/set-guild.js'
 import { factory } from '../init.js'
 
-const getStatus = async (db: D1Database, guild_id: string | undefined) => {
-  const guild = await getGuild(db, guild_id)
-  const cross = await getCrossGuild(db, guild?.cross_guild_id)
+type SwitchCustomId = 'up' | 'breakup' | 'exit'
 
+const getStatusMessage = async (c: CommandContext | ComponentContext | ModalContext) => {
+  // get database data
+  const guild = await getGuild(c.env.DB, c.interaction.guild_id)
+  const cross = await getCrossGuild(c.env.DB, guild?.cross_guild_id)
+
+  // message item
   const sendChannel = guild?.channel_id ? `<#${guild?.channel_id}>` : '未設定'
   // biome-ignore format: ternary operator
   const crossGuild =
-    !guild?.cross_guild_id ? '未設定' :
-    guild?.cross_guild_id === guild.guild_id ? 'ホスト' :
-    `${cross.find(e => e.guild_name === guild.cross_guild_id)?.guild_name} がホスト`
+      !guild?.cross_guild_id ? '未設定' :
+      guild?.cross_guild_id === guild.guild_id ? 'ホスト' :
+      `${cross.find(e => e.guild_name === guild.cross_guild_id)?.guild_name} がホスト`
   const crossGuildList = !guild?.cross_guild_id ? '' : `\n${cross.map(e => `  - ${e.guild_name}`).join('\n')}`
 
-  return {
-    guild,
-    cross,
-    content: `### ステータス\n- 送信チャンネル: ${sendChannel}\n- クロスサーバー: ${crossGuild + crossGuildList}`,
-  }
-}
-
-type SwitchCustomId = 'up' | 'breakup' | 'exit'
-
-const getComponents = (guild: GuildTableColumns | null) => {
-  if (!guild) throw new Error('Guild is undefined')
-  const { channel_id, guild_id, cross_guild_id } = guild
-
+  // component restyle
+  const { channel_id, guild_id, cross_guild_id } = guild ?? {}
   if (channel_id) component_set_channel.component.default_values({ id: channel_id, type: 'channel' })
+  if (guild_id) {
+    component_switch_cross.component.custom_id(
+      (!cross_guild_id ? 'up' : guild_id === cross_guild_id ? 'breakup' : 'exit') satisfies SwitchCustomId,
+    )
+    component_switch_cross.component.label(
+      !cross_guild_id ? 'クロス鯖を立てる' : guild_id === cross_guild_id ? 'クロス鯖を解散' : 'クロス鯖から脱退',
+    )
+    // component_switch_cross.component.style(!cross_guild_id ? "Primary" : "Danger")
+    //if (guild_id !== cross_guild_id) component_invite_cross.component.disabled()
+  }
 
-  component_switch_cross.component.custom_id(
-    (!cross_guild_id ? 'up' : guild_id === cross_guild_id ? 'breakup' : 'exit') satisfies SwitchCustomId,
-  )
-  component_switch_cross.component.label(
-    !cross_guild_id ? 'クロス鯖を立てる' : guild_id === cross_guild_id ? 'クロス鯖を解散' : 'クロス鯖から脱退',
-  )
-  // component_switch_cross.component.style(!cross_guild_id ? "Primary" : "Danger")
+  // message json
+  const content = `### ステータス\n- 送信チャンネル: ${sendChannel}\n- クロスサーバー: ${crossGuild + crossGuildList}`
+  const components = new Components().row(component_set_channel.component)
+  if (guild_id) components.row(component_switch_cross.component, component_invite_cross.component)
 
-  return new Components().row(component_set_channel.component).row(component_switch_cross.component)
+  return { content, components }
 }
 
-const displayStatus = async (c: CommandContext | ComponentContext | ModalContext, preprocess?: () => Promise<void>) => {
+const followupTryCatch = async (
+  c: CommandContext | ComponentContext | ModalContext,
+  tryProcess: () => Promise<void>,
+) => {
   try {
-    if (preprocess) await preprocess()
-    const { content, guild } = await getStatus(c.env.DB, c.interaction.guild_id)
-    const components = getComponents(guild)
-    await c.followup({ content, components })
+    await tryProcess()
     // biome-ignore lint: any
   } catch (e: any) {
     console.error(e)
@@ -70,28 +70,35 @@ const displayStatus = async (c: CommandContext | ComponentContext | ModalContext
 }
 
 // 最初の表示
-export const command_admin = factory.command(new Command('admin', '管理者用'), c => c.resDefer(c => displayStatus(c)))
+export const command_admin = factory.command(new Command('admin', '管理者用'), c =>
+  c.resDefer(c =>
+    followupTryCatch(c, async () => {
+      await c.followup(await getStatusMessage(c))
+    }),
+  ),
+)
 
 // チャンネル選択後の表示
 export const component_set_channel = factory.component<{ set_channel: [string] }, Select<'Channel'>>(
   new Select('set_channel', 'Channel').placeholder('送信チャンネルを選択'),
   c =>
     c.update().resDefer(c =>
-      displayStatus(c, async () => {
+      followupTryCatch(c, async () => {
         if (!c.interaction.guild_id) throw new Error('Guild ID is undefined')
         const old = await getGuild(c.env.DB, c.interaction.guild_id)
         const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
         await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, c.var.set_channel[0], old?.cross_guild_id)
+        await c.followup(await getStatusMessage(c))
       }),
     ),
 )
 
 // クロス鯖スイッチ後の表示
 export const component_switch_cross = factory.component<{ custom_id: SwitchCustomId }, Button>(
-  new Button('switch_cross', ['🔄️', '']),
+  new Button('switch_cross', ['🔄', '']),
   c =>
     c.update().resDefer(c =>
-      displayStatus(c, async () => {
+      followupTryCatch(c, async () => {
         if (!c.interaction.guild_id) throw new Error('Guild ID is undefined')
         const old = await getGuild(c.env.DB, c.interaction.guild_id)
         const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
@@ -110,22 +117,49 @@ export const component_switch_cross = factory.component<{ custom_id: SwitchCusto
           default:
             throw new Error('Invalid custom_id')
         }
+        await c.followup(await getStatusMessage(c))
       }),
     ),
 )
 
 // クロス鯖への招待
-export const component_invite_cross = factory.component(new Button('invite_cross', ['📲', 'クロス鯖へ追加']), c =>
+export const component_invite_cross = factory.component(new Button('invite_cross', ['➡️', 'クロス鯖へ招待']), c =>
   c.resModal(modal_invite_cross.modal),
 )
 export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
-  new Modal('invite_cross', 'クロス鯖へ追加').row(
+  new Modal('invite_cross', 'クロス鯖へ招待').row(
     new TextInput('invite_cross', '追加するサーバーIDを入力').placeholder('123456789123456789').required(),
   ),
   c =>
-    c.resDefer(c =>
-      displayStatus(c, async () => {
+    c.flags('EPHEMERAL').resDefer(c =>
+      followupTryCatch(c, async () => {
+        if (!c.interaction.channel || !c.interaction.message) throw new Error('channel or message is undefined')
         console.log(c.var.invite_cross)
+        const inviteGuild = await getGuild(c.env.DB, c.var.invite_cross)
+        if (inviteGuild && c.interaction.guild_id) {
+          await setGuild(
+            c.env.DB,
+            inviteGuild.guild_id,
+            inviteGuild.guild_name,
+            inviteGuild.channel_id,
+            c.interaction.guild_id,
+          )
+        }
+
+        // message item
+        const failedMessage = !inviteGuild
+          ? '⚠️対象のサーバーが見つかりませんでした。\n'
+          : !c.interaction.guild_id
+            ? '⚠️エラー\n'
+            : ''
+        const { content, components } = await getStatusMessage(c)
+        
+        // modalはupdateできないため、restでメッセージを更新する
+        await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
+          content: failedMessage + content,
+          components,
+        })
+        await c.followup()
       }),
     ),
 )
