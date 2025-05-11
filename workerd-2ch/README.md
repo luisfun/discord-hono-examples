@@ -28,3 +28,8 @@
 ライブラリ
 
 - [discord-hono](https://discord-hono.luis.fun/ja/)
+
+初期化について
+
+`init-db.ts`にDiscord Botのコマンドで初期化するコードが含まれています。  
+[`index.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/index.ts)のコメントアウトを解除して有効化してください。

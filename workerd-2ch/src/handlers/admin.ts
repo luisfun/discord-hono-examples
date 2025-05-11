@@ -23,6 +23,7 @@ import { factory } from '../init.js'
 type SwitchCustomId = 'up' | 'breakup' | 'exit'
 
 const MAX_CROSS_GUILD = 10
+const MAX_LOG_DISPLAY = 20
 
 const getStatusMessage = async (c: CommandContext | ComponentContext | ModalContext) => {
   // get database data
@@ -67,7 +68,7 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
 - サーバーID：\`${c.interaction.guild_id}\``),
   ]
   const components = new Components()
-    .row(component_log.component.label('ログを表示').emoji('📜').custom_id('').disabled(false)) // なぜかオーバーライドが必要
+    .row(component_log.component.label('ログを表示').emoji('📜').custom_id('').disabled(!guild?.cross_guild_id)) // なぜかオーバーライドが必要
     .row(component_set_channel.component)
   if (guild_id) components.row(component_switch_cross.component, component_invite_cross.component)
 
@@ -236,15 +237,14 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
     ),
 )
 
-const LOG_LIMIT = 20
 const getMessageLogs = async (c: CommandContext | ComponentContext | ModalContext, page: number) => {
   // get database data
   const guild = await getGuild(c.env.DB, c.interaction.guild_id)
   const cross = await getCrossGuild(c.env.DB, guild?.cross_guild_id)
-  const log = await getCrossLog(c.env.DB, guild?.cross_guild_id, LOG_LIMIT * (page - 1), LOG_LIMIT)
+  const log = await getCrossLog(c.env.DB, guild?.cross_guild_id, MAX_LOG_DISPLAY * (page - 1), MAX_LOG_DISPLAY)
 
   const guildName = (guild_id: string | undefined) => cross.find(e => e.guild_id === guild_id)?.guild_name ?? 'Unknown'
-  const maxPage = log.length / LOG_LIMIT
+  const maxPage = log.length / MAX_LOG_DISPLAY
   console.log(page, log)
 
   // message json
