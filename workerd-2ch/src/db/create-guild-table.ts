@@ -1,5 +1,6 @@
 export type GuildTableColumns = {
   guild_id: string
+  guild_name: string
   channel_id?: string
   cross_guild_id?: string
   updated_at: number
@@ -15,6 +16,6 @@ export const tableName = 'guild'
 export const createGuildTable = (db: D1Database) =>
   db
     .prepare(
-      `CREATE TABLE IF NOT EXISTS ${tableName} (guild_id TEXT PRIMARY KEY, channel_id TEXT, cross_guild_id TEXT, updated_at INTEGER NOT NULL)`,
+      `CREATE TABLE IF NOT EXISTS ${tableName} (guild_id TEXT PRIMARY KEY, guild_name TEXT NOT NULL, channel_id TEXT, cross_guild_id TEXT, updated_at INTEGER NOT NULL)`,
     )
     .run()

@@ -48,6 +48,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         await c.followup()
         // biome-ignore lint: any
       } catch (e: any) {
+        console.error(e)
         await c.followup(`Error: ${e.message}`)
       }
     }),

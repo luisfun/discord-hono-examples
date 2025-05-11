@@ -10,6 +10,7 @@ export const command_init_db = factory.command(new Command('init-db', 'データ
       await c.followup(JSON.stringify(res, null, 2))
       // biome-ignore lint: any
     } catch (e: any) {
+      console.error(e)
       await c.followup(`Error: ${e.message}`)
     }
   }),
