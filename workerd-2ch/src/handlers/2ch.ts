@@ -42,7 +42,13 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         for (const channel of channels) await c.rest('POST', _channels_$_messages, [channel], { flags, components })
 
         // set cross log
-        await setCrossLog(c.env.DB, guild?.cross_guild_id, c.interaction.guild_id, c.interaction.user?.id, c.var.text)
+        await setCrossLog(
+          c.env.DB,
+          guild?.cross_guild_id,
+          c.interaction.guild_id,
+          c.interaction.member?.user?.id,
+          c.var.text,
+        )
 
         // delete followup message
         await c.followup()

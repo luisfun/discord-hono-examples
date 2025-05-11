@@ -21,7 +21,7 @@ export const setCrossLog = (
         SELECT id
         FROM _${cross_guild_id}
         ORDER BY id ASC
-        LIMIT GREATEST((SELECT COUNT(*) FROM _${cross_guild_id}) - ${maxLog}, 0)
+        LIMIT MAX((SELECT COUNT(*) FROM _${cross_guild_id}) - ${maxLog}, 0)
       )
     `),
   ])
