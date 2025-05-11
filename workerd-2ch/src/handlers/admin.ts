@@ -15,6 +15,7 @@ import {
 import { createCrossLogTable } from '../db/create-cross-log-table.js'
 import { deleteCrossLogTable } from '../db/delete-cross-log-table.js'
 import { getCrossGuild } from '../db/get-cross-guild.js'
+import { getCrossLog } from '../db/get-cross-log.js'
 import { getGuild } from '../db/get-guild.js'
 import { setGuild } from '../db/set-guild.js'
 import { factory } from '../init.js'
@@ -51,7 +52,7 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
     }
     // invite control
     if (guild_id === cross_guild_id) component_invite_cross.component.disabled(false)
-    else component_invite_cross.component.disabled() // なぜか必要みたい
+    else component_invite_cross.component.disabled() // なぜかオーバーライドが必要
   }
   if (cross.length >= MAX_CROSS_GUILD) {
     component_invite_cross.component.label('クロス鯖の上限')
@@ -65,7 +66,9 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
 - クロスサーバー：${crossGuild + crossGuildList}
 - サーバーID：\`${c.interaction.guild_id}\``),
   ]
-  const components = new Components().row(component_set_channel.component)
+  const components = new Components()
+    .row(component_log.component.label('ログを表示').emoji('📜').custom_id('').disabled(false)) // なぜかオーバーライドが必要
+    .row(component_set_channel.component)
   if (guild_id) components.row(component_switch_cross.component, component_invite_cross.component)
 
   return { embeds, components }
@@ -231,4 +234,54 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
         await c.followup()
       }),
     ),
+)
+
+const LOG_LIMIT = 20
+const getMessageLogs = async (c: CommandContext | ComponentContext | ModalContext, page: number) => {
+  // get database data
+  const guild = await getGuild(c.env.DB, c.interaction.guild_id)
+  const cross = await getCrossGuild(c.env.DB, guild?.cross_guild_id)
+  const log = await getCrossLog(c.env.DB, guild?.cross_guild_id, LOG_LIMIT * (page - 1), LOG_LIMIT)
+
+  const guildName = (guild_id: string | undefined) => cross.find(e => e.guild_id === guild_id)?.guild_name ?? 'Unknown'
+  const maxPage = log.length / LOG_LIMIT
+  console.log(page, log)
+
+  // message json
+  const embeds = [
+    new Embed()
+      .title('ログ')
+      .description(log.map(e => `${e.id}：<@${e.user_id}>：${guildName(e.guild_id)}`).join('\n')),
+  ]
+  const components = new Components().row(component_main.component).row(
+    component_log.component
+      .label('前のログ')
+      .emoji('⬅️')
+      .custom_id(String(page - 1))
+      .disabled(page <= 1)
+      .toJSON(),
+    component_log.component
+      .label('次のログ')
+      .emoji('➡️')
+      .custom_id(String(page + 1))
+      .disabled(maxPage <= page)
+      .toJSON(),
+  )
+  return { embeds, components }
+}
+
+export const component_log = factory.component(new Button('log', ['📜', 'ログを表示']), c =>
+  c.update().resDefer(c =>
+    followupTryCatch(c, async () => {
+      await c.followup(await getMessageLogs(c, Number(c.var.custom_id || 1)))
+    }),
+  ),
+)
+
+export const component_main = factory.component(new Button('main', ['🏠', '管理へ戻る']), c =>
+  c.update().resDefer(c =>
+    followupTryCatch(c, async () => {
+      await c.followup(await getStatusMessage(c))
+    }),
+  ),
 )
