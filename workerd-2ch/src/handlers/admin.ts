@@ -47,7 +47,7 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
     component_switch_cross.component.label(
       !cross_guild_id ? 'クロス鯖を立てる' : guild_id === cross_guild_id ? 'クロス鯖を解散' : 'クロス鯖から脱退',
     )
-    component_switch_cross.component.style(!cross_guild_id ? 'Primary' : 'Danger') // discord-hono v0.19.2
+    //component_switch_cross.component.style(!cross_guild_id ? 'Primary' : 'Danger') // discord-hono v0.19.2
     if (guild_id !== cross_guild_id) component_invite_cross.component.disabled()
   }
   if (cross.length >= MAX_CROSS_GUILD) {
@@ -108,31 +108,83 @@ export const component_set_channel = factory.component<{ set_channel: [string] }
 // クロス鯖スイッチ後の表示
 export const component_switch_cross = factory.component<{ custom_id: SwitchCustomId }, Button>(
   new Button('switch_cross', ['🔄', '']),
-  c =>
-    c.update().resDefer(c =>
-      followupTryCatch(c, async () => {
-        if (!c.interaction.guild_id) throw new Error('Guild ID is undefined')
-        const old = await getGuild(c.env.DB, c.interaction.guild_id)
-        const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
-        switch (c.var.custom_id) {
-          case 'up':
+  c => {
+    switch (c.var.custom_id) {
+      case 'up':
+        return c.update().resDefer(c =>
+          followupTryCatch(c, async () => {
+            if (!c.interaction.guild_id) throw new Error('Guild ID is undefined')
+            const old = await getGuild(c.env.DB, c.interaction.guild_id)
             if (old?.cross_guild_id) throw new Error('Already cross guild')
+            const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
             await createCrossLogTable(c.env.DB, c.interaction.guild_id)
             await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, c.interaction.guild_id)
-            break
-          case 'breakup': {
-            await deleteCrossLogTable(c.env.DB, c.interaction.guild_id)
-            const cross = await getCrossGuild(c.env.DB, c.interaction.guild_id)
-            await Promise.all(cross.map(g => setGuild(c.env.DB, g.guild_id, g.guild_name, g.channel_id, undefined)))
-            break
-          }
-          case 'exit':
-            await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, undefined)
-            break
-          default:
-            throw new Error('Invalid custom_id')
+            await c.followup(await getStatusMessage(c))
+          }),
+        )
+      case 'breakup':
+        return c.resModal(modal_breakup_cross.modal)
+      case 'exit':
+        return c.resModal(modal_exit_cross.modal)
+      default:
+        throw new Error('Invalid custom_id')
+    }
+  },
+)
+const BREAKUP_WORD = '解散する'
+export const modal_breakup_cross = factory.modal<{ breakup_cross: string }>(
+  new Modal('breakup_cross', 'クロス鯖を解散').row(
+    new TextInput('breakup_cross', `「${BREAKUP_WORD}」と入力`).placeholder(BREAKUP_WORD).required(),
+  ),
+  c =>
+    c.flags('EPHEMERAL').resDefer(c =>
+      followupTryCatch(c, async () => {
+        if (!c.interaction.channel || !c.interaction.message) throw new Error('channel or message is undefined')
+        const isBreakup = c.var.breakup_cross === BREAKUP_WORD
+        // breakup
+        if (isBreakup) {
+          await deleteCrossLogTable(c.env.DB, c.interaction.guild_id)
+          const cross = await getCrossGuild(c.env.DB, c.interaction.guild_id)
+          await Promise.all(cross.map(g => setGuild(c.env.DB, g.guild_id, g.guild_name, g.channel_id, undefined)))
         }
-        await c.followup(await getStatusMessage(c))
+        // message item
+        const { embeds, components } = await getStatusMessage(c)
+        if (!isBreakup) embeds[0].fields({ name: '⚠️解散していません', value: 'モーダルへの入力が間違っています' })
+        // update message
+        await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
+          embeds,
+          components,
+        })
+        await c.followup()
+      }),
+    ),
+)
+const EXIT_WORD = '脱退する'
+export const modal_exit_cross = factory.modal<{ exit_cross: string }>(
+  new Modal('exit_cross', 'クロス鯖から脱退').row(
+    new TextInput('exit_cross', `「${EXIT_WORD}」と入力`).placeholder(EXIT_WORD).required(),
+  ),
+  c =>
+    c.flags('EPHEMERAL').resDefer(c =>
+      followupTryCatch(c, async () => {
+        if (!c.interaction.channel || !c.interaction.message || !c.interaction.guild_id)
+          throw new Error('channel or message or guild_id is undefined')
+        const isExit = c.var.exit_cross === EXIT_WORD
+        // exit
+        if (isExit) {
+          const old = await getGuild(c.env.DB, c.interaction.guild_id)
+          const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
+          await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, undefined)
+        }
+        // message item
+        const { embeds, components } = await getStatusMessage(c)
+        if (!isExit) embeds[0].fields({ name: '⚠️脱退していません', value: 'モーダルへの入力が間違っています' })
+        // update message
+        await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
+          embeds,
+          components,
+        })
+        await c.followup()
       }),
     ),
 )
@@ -150,6 +202,7 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
       followupTryCatch(c, async () => {
         if (!c.interaction.channel || !c.interaction.message) throw new Error('channel or message is undefined')
         const inviteGuild = await getGuild(c.env.DB, c.var.invite_cross)
+        // invite
         if (inviteGuild && !inviteGuild.cross_guild_id && c.interaction.guild_id)
           await setGuild(
             c.env.DB,
@@ -158,7 +211,6 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
             inviteGuild.channel_id,
             c.interaction.guild_id,
           )
-
         // message item
         // biome-ignore format: ternary operator
         const failedMessage =
@@ -167,8 +219,7 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
           !c.interaction.guild_id ? '不明' : ''
         const { embeds, components } = await getStatusMessage(c)
         if (failedMessage) embeds[0].fields({ name: '⚠️招待エラー', value: failedMessage })
-
-        // modalはupdateできないため、restでメッセージを更新する
+        // update message
         await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
           embeds,
           components,
