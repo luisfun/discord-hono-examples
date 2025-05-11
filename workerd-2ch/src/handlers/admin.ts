@@ -41,14 +41,17 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
   const { channel_id, guild_id, cross_guild_id } = guild ?? {}
   if (channel_id) component_set_channel.component.default_values({ id: channel_id, type: 'channel' })
   if (guild_id) {
-    component_switch_cross.component.custom_id(
-      (!cross_guild_id ? 'up' : guild_id === cross_guild_id ? 'breakup' : 'exit') satisfies SwitchCustomId,
-    )
-    component_switch_cross.component.label(
-      !cross_guild_id ? 'クロス鯖を立てる' : guild_id === cross_guild_id ? 'クロス鯖を解散' : 'クロス鯖から脱退',
-    )
-    //component_switch_cross.component.style(!cross_guild_id ? 'Primary' : 'Danger') // discord-hono v0.19.2
-    if (guild_id !== cross_guild_id) component_invite_cross.component.disabled()
+    // switch control
+    if (!cross_guild_id) {
+      component_switch_cross.component.label('クロス鯖を立てる').custom_id('up' satisfies SwitchCustomId) //.style('Primary')
+    } else if (guild_id === cross_guild_id) {
+      component_switch_cross.component.label('クロス鯖を解散').custom_id('breakup' satisfies SwitchCustomId) //.style('Danger')
+    } else {
+      component_switch_cross.component.label('クロス鯖から脱退').custom_id('exit' satisfies SwitchCustomId) //.style('Danger')
+    }
+    // invite control
+    if (guild_id === cross_guild_id) component_invite_cross.component.disabled(false)
+    else component_invite_cross.component.disabled() // なぜか必要みたい
   }
   if (cross.length >= MAX_CROSS_GUILD) {
     component_invite_cross.component.label('クロス鯖の上限')
@@ -107,7 +110,7 @@ export const component_set_channel = factory.component<{ set_channel: [string] }
 
 // クロス鯖スイッチ後の表示
 export const component_switch_cross = factory.component<{ custom_id: SwitchCustomId }, Button>(
-  new Button('switch_cross', ['🔄', '']),
+  new Button('switch_cross', '').emoji('🔄'),
   c => {
     switch (c.var.custom_id) {
       case 'up':
@@ -149,7 +152,7 @@ export const modal_breakup_cross = factory.modal<{ breakup_cross: string }>(
         }
         // message item
         const { embeds, components } = await getStatusMessage(c)
-        if (!isBreakup) embeds[0].fields({ name: '⚠️解散していません', value: 'モーダルへの入力が間違っています' })
+        if (!isBreakup) embeds[0].fields({ name: '⚠️解散していません', value: '入力が間違っています' })
         // update message
         await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
           embeds,
@@ -178,7 +181,7 @@ export const modal_exit_cross = factory.modal<{ exit_cross: string }>(
         }
         // message item
         const { embeds, components } = await getStatusMessage(c)
-        if (!isExit) embeds[0].fields({ name: '⚠️脱退していません', value: 'モーダルへの入力が間違っています' })
+        if (!isExit) embeds[0].fields({ name: '⚠️脱退していません', value: '入力が間違っています' })
         // update message
         await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
           embeds,
@@ -190,8 +193,9 @@ export const modal_exit_cross = factory.modal<{ exit_cross: string }>(
 )
 
 // クロス鯖への招待
-export const component_invite_cross = factory.component(new Button('invite_cross', ['➡️', 'クロス鯖へ招待']), c =>
-  c.resModal(modal_invite_cross.modal),
+export const component_invite_cross = factory.component(
+  new Button('invite_cross', ['➡️', 'クロス鯖へ招待']).disabled(),
+  c => c.resModal(modal_invite_cross.modal),
 )
 export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
   new Modal('invite_cross', 'クロス鯖へ招待').row(
