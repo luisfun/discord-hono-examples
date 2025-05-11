@@ -47,7 +47,7 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
     component_switch_cross.component.label(
       !cross_guild_id ? 'クロス鯖を立てる' : guild_id === cross_guild_id ? 'クロス鯖を解散' : 'クロス鯖から脱退',
     )
-    // component_switch_cross.component.style(!cross_guild_id ? "Primary" : "Danger") // discord-hono v0.19.2
+    component_switch_cross.component.style(!cross_guild_id ? 'Primary' : 'Danger') // discord-hono v0.19.2
     if (guild_id !== cross_guild_id) component_invite_cross.component.disabled()
   }
   if (cross.length >= MAX_CROSS_GUILD) {
@@ -116,6 +116,7 @@ export const component_switch_cross = factory.component<{ custom_id: SwitchCusto
         const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
         switch (c.var.custom_id) {
           case 'up':
+            if (old?.cross_guild_id) throw new Error('Already cross guild')
             await createCrossLogTable(c.env.DB, c.interaction.guild_id)
             await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, c.interaction.guild_id)
             break
@@ -149,7 +150,7 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
       followupTryCatch(c, async () => {
         if (!c.interaction.channel || !c.interaction.message) throw new Error('channel or message is undefined')
         const inviteGuild = await getGuild(c.env.DB, c.var.invite_cross)
-        if (inviteGuild && c.interaction.guild_id) {
+        if (inviteGuild && !inviteGuild.cross_guild_id && c.interaction.guild_id)
           await setGuild(
             c.env.DB,
             inviteGuild.guild_id,
@@ -157,10 +158,13 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
             inviteGuild.channel_id,
             c.interaction.guild_id,
           )
-        }
 
         // message item
-        const failedMessage = !inviteGuild ? '対象のサーバーが見つかりません' : !c.interaction.guild_id ? '不明' : ''
+        // biome-ignore format: ternary operator
+        const failedMessage =
+          !inviteGuild ? '対象のサーバーが見つかりません' :
+          inviteGuild.cross_guild_id ? 'いずれかのクロス鯖へ参加しています' :
+          !c.interaction.guild_id ? '不明' : ''
         const { embeds, components } = await getStatusMessage(c)
         if (failedMessage) embeds[0].fields({ name: '⚠️招待エラー', value: failedMessage })
 
