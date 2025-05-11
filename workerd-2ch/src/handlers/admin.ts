@@ -270,6 +270,7 @@ const getMessageLogs = async (c: CommandContext | ComponentContext | ModalContex
   return { embeds, components }
 }
 
+// ログ表示＋ページ送り
 export const component_log = factory.component(new Button('log', ['📜', 'ログを表示']), c =>
   c.update().resDefer(c =>
     followupTryCatch(c, async () => {
@@ -278,6 +279,7 @@ export const component_log = factory.component(new Button('log', ['📜', 'ロ�
   ),
 )
 
+// 管理へ戻る
 export const component_main = factory.component(new Button('main', ['🏠', '管理へ戻る']), c =>
   c.update().resDefer(c =>
     followupTryCatch(c, async () => {
