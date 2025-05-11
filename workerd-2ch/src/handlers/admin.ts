@@ -4,6 +4,7 @@ import {
   type CommandContext,
   type ComponentContext,
   Components,
+  Embed,
   Modal,
   type ModalContext,
   Select,
@@ -45,15 +46,20 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
       !cross_guild_id ? 'クロス鯖を立てる' : guild_id === cross_guild_id ? 'クロス鯖を解散' : 'クロス鯖から脱退',
     )
     // component_switch_cross.component.style(!cross_guild_id ? "Primary" : "Danger")
-    //if (guild_id !== cross_guild_id) component_invite_cross.component.disabled()
+    if (guild_id !== cross_guild_id) component_invite_cross.component.disabled()
   }
 
   // message json
-  const content = `### ステータス\n- 送信チャンネル: ${sendChannel}\n- クロスサーバー: ${crossGuild + crossGuildList}`
+  const embeds = [
+    new Embed().title('管理ステータス').description(`
+- 送信チャンネル：${sendChannel}
+- クロスサーバー：${crossGuild + crossGuildList}
+- サーバーID：\`${c.interaction.guild_id}\``),
+  ]
   const components = new Components().row(component_set_channel.component)
   if (guild_id) components.row(component_switch_cross.component, component_invite_cross.component)
 
-  return { content, components }
+  return { embeds, components }
 }
 
 const followupTryCatch = async (
@@ -134,7 +140,6 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
     c.flags('EPHEMERAL').resDefer(c =>
       followupTryCatch(c, async () => {
         if (!c.interaction.channel || !c.interaction.message) throw new Error('channel or message is undefined')
-        console.log(c.var.invite_cross)
         const inviteGuild = await getGuild(c.env.DB, c.var.invite_cross)
         if (inviteGuild && c.interaction.guild_id) {
           await setGuild(
@@ -147,16 +152,13 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
         }
 
         // message item
-        const failedMessage = !inviteGuild
-          ? '⚠️対象のサーバーが見つかりませんでした。\n'
-          : !c.interaction.guild_id
-            ? '⚠️エラー\n'
-            : ''
-        const { content, components } = await getStatusMessage(c)
-        
+        const failedMessage = !inviteGuild ? '対象のサーバーが見つかりません' : !c.interaction.guild_id ? '不明' : ''
+        const { embeds, components } = await getStatusMessage(c)
+        if (failedMessage) embeds[0].fields({ name: '⚠️エラー', value: failedMessage })
+
         // modalはupdateできないため、restでメッセージを更新する
         await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
-          content: failedMessage + content,
+          embeds,
           components,
         })
         await c.followup()
