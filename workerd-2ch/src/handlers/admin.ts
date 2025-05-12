@@ -63,11 +63,10 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
     }
     // invite control
     if (guild_id === cross_guild_id) component_invite_cross.component.disabled(false)
-    else component_invite_cross.component.disabled() // なぜかオーバーライドが必要
+    else component_invite_cross.component.disabled() // なぜかオーバーライトが必要
   }
   if (cross.length >= MAX_CROSS_GUILD) {
-    component_invite_cross.component.label('クロス鯖の上限')
-    component_invite_cross.component.disabled()
+    component_invite_cross.component.label('クロス鯖の上限').disabled()
   }
 
   // message json
@@ -78,8 +77,15 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
 - サーバーID：\`${c.interaction.guild_id}\``),
   ]
   const components = new Components()
-    .row(component_log.component.label('ログを表示').emoji('📜').custom_id('').disabled(!guild?.cross_guild_id)) // なぜかオーバーライドが必要
-    .row(component_set_channel.component)
+  if (cross_guild_id)
+    components.row(
+      component_log.component
+        .label('ログを表示')
+        .emoji('📜')
+        .custom_id('')
+        .disabled(!guild?.cross_guild_id), // なぜかオーバーライトが必要
+    )
+  components.row(component_set_channel.component)
   if (guild_id) components.row(component_switch_cross.component, component_invite_cross.component)
 
   return { embeds, components }

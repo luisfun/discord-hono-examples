@@ -1,4 +1,4 @@
-# 2ちゃんねる（匿名投稿Bot）
+# /2ch（匿名投稿Bot）
 
 [👉 招待URL](https://discord.com/oauth2/authorize?client_id=1370657822853042186&permissions=0&integration_type=0&scope=bot)
 
