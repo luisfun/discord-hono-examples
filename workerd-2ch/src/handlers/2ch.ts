@@ -1,9 +1,10 @@
-import type { APIChatInputApplicationCommandInteractionData } from 'discord-api-types/v10'
+import type { APIChatInputApplicationCommandInteractionData, APIMessage } from 'discord-api-types/v10'
 import { Command, Content, Option, _channels_$_messages } from 'discord-hono'
 import { getCrossGuild } from '../db/get-cross-guild.js'
 import { getGuild } from '../db/get-guild.js'
 import { getNextId } from '../db/get-next-id.js'
 import { setCrossLog } from '../db/set-cross-log.js'
+import { setGuild } from '../db/set-guild.js'
 import { factory } from '../init.js'
 
 export const command_2ch = factory.command<{ text: string; image?: string }>(
@@ -39,7 +40,24 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         ].filter(e => !!e)
 
         // send message
-        for (const channel of channels) await c.rest('POST', _channels_$_messages, [channel], { flags, components })
+        let isPostError = !channels[0]
+        for (const channel of channels) {
+          const res = (await c
+            .rest('POST', _channels_$_messages, [channel], { flags, components })
+            .then(r => r.json())) as APIMessage | { message: string; code: number }
+          if ('message' in res && res.message === 'Unknown Channel') {
+            isPostError = true
+            const errorGuild = cross.find(e => e.channel_id === channel)
+            if (errorGuild)
+              await setGuild(
+                c.env.DB,
+                errorGuild?.guild_id,
+                errorGuild?.guild_name,
+                undefined,
+                errorGuild?.cross_guild_id,
+              )
+          }
+        }
 
         // set cross log
         await setCrossLog(
@@ -51,7 +69,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         )
 
         // delete followup message
-        await c.followup()
+        await c.followup(isPostError ? 'Warn: 一部のチャンネルに送信できませんでした。' : undefined)
         // biome-ignore lint: any
       } catch (e: any) {
         console.error(e)
