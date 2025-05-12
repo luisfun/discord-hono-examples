@@ -45,6 +45,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
           const res = (await c
             .rest('POST', _channels_$_messages, [channel], { flags, components })
             .then(r => r.json())) as APIMessage | { message: string; code: number }
+          // チャンネルが不正の時、そのチャンネルをDBから削除。guildやcross_guildはそのまま保持。
           if ('message' in res && res.message === 'Unknown Channel') {
             isPostError = true
             const errorGuild = cross.find(e => e.channel_id === channel)
