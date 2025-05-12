@@ -40,7 +40,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         ].filter(e => !!e)
 
         // send message
-        let isPostError = !channels[0]
+        let isPostError = !channels.includes(guild?.channel_id ?? c.interaction.channel.id)
         for (const channel of channels) {
           const res = (await c
             .rest('POST', _channels_$_messages, [channel], { flags, components })
