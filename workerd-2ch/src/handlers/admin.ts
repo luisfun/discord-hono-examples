@@ -128,10 +128,6 @@ export const component_switch_cross = factory.component<{ custom_id: SwitchCusto
             // cross guild creation
             await createCrossLogTable(c.env.DB, c.interaction.guild_id)
             await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, c.interaction.guild_id)
-            // nickname update
-            await c.rest('PATCH', _guilds_$_members_$, [c.interaction.guild_id, c.interaction.message.author.id], {
-              nick: '2ちゃんねる（クロス鯖）',
-            })
             // message update
             await c.followup(await getStatusMessage(c))
           }),
@@ -226,10 +222,6 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
             inviteGuild.channel_id,
             c.interaction.guild_id,
           )
-          // nickname update
-          await c.rest('PATCH', _guilds_$_members_$, [inviteGuild.guild_id, c.interaction.message.author.id], {
-            nick: '2ちゃんねる（クロス鯖）',
-          })
         }
         // message item
         // biome-ignore format: ternary operator
