@@ -33,3 +33,7 @@
 
 [`init-db.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/init-db.ts)にDiscord Botのコマンドで初期化するコードが含まれています。  
 [`index.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/index.ts)のコメントアウトを解除して有効化してください。
+
+### インスパイア元
+
+https://qiita.com/peisuke/items/80984db8b47cd8243019
