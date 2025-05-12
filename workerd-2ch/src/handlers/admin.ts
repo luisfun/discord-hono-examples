@@ -46,11 +46,20 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
   if (guild_id) {
     // switch control
     if (!cross_guild_id) {
-      component_switch_cross.component.label('クロス鯖を立てる').custom_id('up' satisfies SwitchCustomId) //.style('Primary')
+      component_switch_cross.component
+        .label('クロス鯖を立てる')
+        .custom_id('up' satisfies SwitchCustomId)
+        .style('Primary')
     } else if (guild_id === cross_guild_id) {
-      component_switch_cross.component.label('クロス鯖を解散').custom_id('breakup' satisfies SwitchCustomId) //.style('Danger')
+      component_switch_cross.component
+        .label('クロス鯖を解散')
+        .custom_id('breakup' satisfies SwitchCustomId)
+        .style('Danger')
     } else {
-      component_switch_cross.component.label('クロス鯖から脱退').custom_id('exit' satisfies SwitchCustomId) //.style('Danger')
+      component_switch_cross.component
+        .label('クロス鯖から脱退')
+        .custom_id('exit' satisfies SwitchCustomId)
+        .style('Danger')
     }
     // invite control
     if (guild_id === cross_guild_id) component_invite_cross.component.disabled(false)
