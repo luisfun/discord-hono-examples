@@ -11,6 +11,7 @@ import {
   TextInput,
   _channels_$_messages_$,
   _guilds_$,
+  _guilds_$_members_$,
 } from 'discord-hono'
 import { createCrossLogTable } from '../db/create-cross-log-table.js'
 import { deleteCrossLogTable } from '../db/delete-cross-log-table.js'
@@ -124,8 +125,14 @@ export const component_switch_cross = factory.component<{ custom_id: SwitchCusto
             const old = await getGuild(c.env.DB, c.interaction.guild_id)
             if (old?.cross_guild_id) throw new Error('Already cross guild')
             const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
+            // cross guild creation
             await createCrossLogTable(c.env.DB, c.interaction.guild_id)
             await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, c.interaction.guild_id)
+            // nickname update
+            await c.rest('PATCH', _guilds_$_members_$, [c.interaction.guild_id, c.interaction.message.author.id], {
+              nick: '2ちゃんねる（クロス鯖）',
+            })
+            // message update
             await c.followup(await getStatusMessage(c))
           }),
         )
@@ -210,8 +217,8 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
       followupTryCatch(c, async () => {
         if (!c.interaction.channel || !c.interaction.message) throw new Error('channel or message is undefined')
         const inviteGuild = await getGuild(c.env.DB, c.var.invite_cross)
-        // invite
-        if (inviteGuild && !inviteGuild.cross_guild_id && c.interaction.guild_id)
+        if (inviteGuild && !inviteGuild.cross_guild_id && c.interaction.guild_id) {
+          // invite
           await setGuild(
             c.env.DB,
             inviteGuild.guild_id,
@@ -219,6 +226,11 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
             inviteGuild.channel_id,
             c.interaction.guild_id,
           )
+          // nickname update
+          await c.rest('PATCH', _guilds_$_members_$, [inviteGuild.guild_id, c.interaction.message.author.id], {
+            nick: '2ちゃんねる（クロス鯖）',
+          })
+        }
         // message item
         // biome-ignore format: ternary operator
         const failedMessage =
