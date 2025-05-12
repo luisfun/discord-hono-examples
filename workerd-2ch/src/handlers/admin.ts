@@ -162,9 +162,8 @@ export const modal_breakup_cross = factory.modal<{ breakup_cross: string }>(
     new TextInput('breakup_cross', `「${BREAKUP_WORD}」と入力`).placeholder(BREAKUP_WORD).required(),
   ),
   c =>
-    c.flags('EPHEMERAL').resDefer(c =>
+    c.update().resDefer(c =>
       followupTryCatch(c, async () => {
-        if (!c.interaction.channel || !c.interaction.message) throw new Error('channel or message is undefined')
         const isBreakup = c.var.breakup_cross === BREAKUP_WORD
         // breakup
         if (isBreakup) {
@@ -176,11 +175,7 @@ export const modal_breakup_cross = factory.modal<{ breakup_cross: string }>(
         const { embeds, components } = await getStatusMessage(c)
         if (!isBreakup) embeds[0].fields({ name: '⚠️解散していません', value: '入力が間違っています' })
         // update message
-        await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
-          embeds,
-          components,
-        })
-        await c.followup()
+        await c.followup({ embeds, components })
       }),
     ),
 )
@@ -190,10 +185,9 @@ export const modal_exit_cross = factory.modal<{ exit_cross: string }>(
     new TextInput('exit_cross', `「${EXIT_WORD}」と入力`).placeholder(EXIT_WORD).required(),
   ),
   c =>
-    c.flags('EPHEMERAL').resDefer(c =>
+    c.update().resDefer(c =>
       followupTryCatch(c, async () => {
-        if (!c.interaction.channel || !c.interaction.message || !c.interaction.guild_id)
-          throw new Error('channel or message or guild_id is undefined')
+        if (!c.interaction.guild_id) throw new Error('guild_id is undefined')
         const isExit = c.var.exit_cross === EXIT_WORD
         // exit
         if (isExit) {
@@ -205,11 +199,7 @@ export const modal_exit_cross = factory.modal<{ exit_cross: string }>(
         const { embeds, components } = await getStatusMessage(c)
         if (!isExit) embeds[0].fields({ name: '⚠️脱退していません', value: '入力が間違っています' })
         // update message
-        await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
-          embeds,
-          components,
-        })
-        await c.followup()
+        await c.followup({ embeds, components })
       }),
     ),
 )
@@ -224,9 +214,8 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
     new TextInput('invite_cross', '追加するサーバーIDを入力').placeholder('123456789123456789').required(),
   ),
   c =>
-    c.flags('EPHEMERAL').resDefer(c =>
+    c.update().resDefer(c =>
       followupTryCatch(c, async () => {
-        if (!c.interaction.channel || !c.interaction.message) throw new Error('channel or message is undefined')
         const inviteGuild = await getGuild(c.env.DB, c.var.invite_cross)
         if (inviteGuild && !inviteGuild.cross_guild_id && c.interaction.guild_id) {
           // invite
@@ -248,11 +237,7 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
         if (failedMessage) embeds[0].fields({ name: '⚠️招待エラー', value: failedMessage })
         else embeds[0].fields({ name: '✅招待成功', value: 'クロスサーバーに追加されました' }) // できたら無くてもいいようにしたい
         // update message
-        await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
-          embeds,
-          components,
-        })
-        await c.followup()
+        await c.followup({ embeds, components })
       }),
     ),
 )
