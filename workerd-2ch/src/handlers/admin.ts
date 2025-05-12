@@ -231,6 +231,7 @@ export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
           !c.interaction.guild_id ? '不明' : ''
         const { embeds, components } = await getStatusMessage(c)
         if (failedMessage) embeds[0].fields({ name: '⚠️招待エラー', value: failedMessage })
+        else embeds[0].fields({ name: '✅招待成功', value: 'クロスサーバーに追加されました' }) // できたら無くてもいいようにしたい
         // update message
         await c.rest('PATCH', _channels_$_messages_$, [c.interaction.channel.id, c.interaction.message.id], {
           embeds,
