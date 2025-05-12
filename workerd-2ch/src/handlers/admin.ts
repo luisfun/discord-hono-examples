@@ -9,9 +9,7 @@ import {
   type ModalContext,
   Select,
   TextInput,
-  _channels_$_messages_$,
   _guilds_$,
-  _guilds_$_members_$,
 } from 'discord-hono'
 import { createCrossLogTable } from '../db/create-cross-log-table.js'
 import { deleteCrossLogTable } from '../db/delete-cross-log-table.js'
