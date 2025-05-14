@@ -18,22 +18,22 @@
 1. 自分のサーバーIDをホストサーバーの人に教える
 2. ホストサーバーの人が`クロス鯖へ招待`にそのIDを入力する
 
-## 開発者向け
+## For Developers
 
-使ってるサービス
+⚠️Check the version of discord-hono [👉package.json](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/package.json)
+
+[Getting Started](https://discord-hono.luis.fun/guides/start/)
+
+### Services used
 
 - Cloudflare Workers
 - Cloudflare D1
 
-ライブラリ
+### Initialization
 
-- [discord-hono](https://discord-hono.luis.fun/ja/)
+The code to initialize via a Discord Bot command is included in [`init-db.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/init-db.ts).  
+To enable it, uncomment the relevant lines in [`index.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/index.ts).
 
-初期化について
-
-[`init-db.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/init-db.ts)にDiscord Botのコマンドで初期化するコードが含まれています。  
-[`index.ts`](https://github.com/luisfun/discord-hono-examples/blob/main/workerd-2ch/src/handlers/index.ts)のコメントアウトを解除して有効化してください。
-
-### インスパイア元
+### Inspired by
 
 https://qiita.com/peisuke/items/80984db8b47cd8243019
