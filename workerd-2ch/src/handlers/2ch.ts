@@ -36,7 +36,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         // message json
         const flags = 1 << 15 // IS_COMPONENTS_V2
         const components = [
-          new Content(`-# **${index}${name}：${time} ID:${hashId}**`),
+          new Content(`-# **${index}${name}：${time} ID:${hashId}**`), // flavor text
           new Content(c.var.text),
           url ? new Content(url, 'Media Gallery') : null,
         ].filter(e => !!e)
