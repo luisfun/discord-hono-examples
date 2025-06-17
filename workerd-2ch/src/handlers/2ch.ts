@@ -27,6 +27,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
           : [guild?.channel_id ?? c.interaction.channel.id]
         const index = nextId ? `${nextId}：` : ''
         const time = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
+        const hashId = await toHashId(c.interaction.member?.user?.id ?? '')
         const url = (c.interaction.data as APIChatInputApplicationCommandInteractionData).resolved?.attachments?.[
           c.var.image ?? 0
         ]?.url
@@ -34,7 +35,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         // message json
         const flags = 1 << 15 // IS_COMPONENTS_V2
         const components = [
-          new Content(`-# **${index}以下、VIPがお送りします：${time}**`),
+          new Content(`-# **${index}以下、VIPがお送りします：${time} ID:${hashId}**`),
           new Content(c.var.text),
           url ? new Content(url, 'Media Gallery') : null,
         ].filter(e => !!e)
@@ -78,3 +79,13 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
       }
     }),
 )
+
+const toHashId = async (uid: string) =>
+  Array.from(
+    new Uint8Array(
+      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(new Date().toISOString().split('T')[0] + uid)),
+    ),
+  )
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+    .substring(0, 4) // 4-digit hash ID
