@@ -41,25 +41,27 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         ].filter(e => !!e)
 
         // send message
-        let isPostError = !channels.includes(guild?.channel_id ?? c.interaction.channel.id)
-        for (const channel of channels) {
-          const res = (await c
-            .rest('POST', _channels_$_messages, [channel], { flags, components })
-            .then(r => r.json())) as APIMessage | { message: string; code: number }
-          // チャンネルが不正の時、そのチャンネルをDBから削除。guildやcross_guildはそのまま保持。
-          if ('message' in res && res.message === 'Unknown Channel') {
-            isPostError = true
-            const errorGuild = cross.find(e => e.channel_id === channel)
-            if (errorGuild)
-              await setGuild(
-                c.env.DB,
-                errorGuild?.guild_id,
-                errorGuild?.guild_name,
-                undefined,
-                errorGuild?.cross_guild_id,
-              )
-          }
-        }
+        const errorArray = await Promise.all(
+          channels.map(async channel => {
+            const res = await c.rest('POST', _channels_$_messages, [channel], { flags, components }).then(r => r.json())
+            // チャンネルが不正の時、そのチャンネルをDBから削除。guildやcross_guildはそのまま保持。
+            if ('message' in res && res.message === 'Unknown Channel') {
+              const errorGuild = cross.find(e => e.channel_id === channel)
+              if (errorGuild)
+                await setGuild(
+                  c.env.DB,
+                  errorGuild?.guild_id,
+                  errorGuild?.guild_name,
+                  undefined,
+                  errorGuild?.cross_guild_id,
+                )
+              return true // error
+            }
+            return false // success
+          }),
+        )
+        const isPostError =
+          !channels.includes(guild?.channel_id ?? c.interaction.channel.id) || errorArray.some(Boolean)
 
         // set cross log
         await setCrossLog(
