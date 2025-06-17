@@ -28,7 +28,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         const index = nextId ? `${nextId}：` : ''
         const name = '名無しさん'
         const time = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
-        const hashId = await toHashId(c.interaction.member?.user?.id ?? '')
+        const hashId = await toHashId(time.split(' ')[0] + c.interaction.member?.user?.id)
         const url = (c.interaction.data as APIChatInputApplicationCommandInteractionData).resolved?.attachments?.[
           c.var.image ?? 0
         ]?.url
@@ -83,12 +83,8 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
     }),
 )
 
-const toHashId = async (uid: string) =>
-  Array.from(
-    new Uint8Array(
-      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(new Date().toISOString().split('T')[0] + uid)),
-    ),
-  )
+const toHashId = async (str: string) =>
+  Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
     .substring(0, 4) // 4-digit hash ID
