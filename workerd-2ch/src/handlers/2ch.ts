@@ -26,6 +26,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
           ? (cross.map(e => e.channel_id).filter(e => !!e) as string[])
           : [guild?.channel_id ?? c.interaction.channel.id]
         const index = nextId ? `${nextId}：` : ''
+        const name = '名無しさん'
         const time = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
         const hashId = await toHashId(c.interaction.member?.user?.id ?? '')
         const url = (c.interaction.data as APIChatInputApplicationCommandInteractionData).resolved?.attachments?.[
@@ -35,7 +36,7 @@ export const command_2ch = factory.command<{ text: string; image?: string }>(
         // message json
         const flags = 1 << 15 // IS_COMPONENTS_V2
         const components = [
-          new Content(`-# **${index}以下、VIPがお送りします：${time} ID:${hashId}**`),
+          new Content(`-# **${index}${name}：${time} ID:${hashId}**`),
           new Content(c.var.text),
           url ? new Content(url, 'Media Gallery') : null,
         ].filter(e => !!e)
