@@ -1,4 +1,5 @@
 import {
+  _guilds_$,
   Button,
   Command,
   type CommandContext,
@@ -9,7 +10,6 @@ import {
   type ModalContext,
   Select,
   TextInput,
-  _guilds_$,
 } from 'discord-hono'
 import { createCrossLogTable } from '../db/create-cross-log-table.js'
 import { deleteCrossLogTable } from '../db/delete-cross-log-table.js'

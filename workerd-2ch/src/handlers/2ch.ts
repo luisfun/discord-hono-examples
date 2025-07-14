@@ -1,5 +1,5 @@
-import type { APIChatInputApplicationCommandInteractionData, APIMessage } from 'discord-api-types/v10'
-import { Command, Content, Option, _channels_$_messages } from 'discord-hono'
+import type { APIChatInputApplicationCommandInteractionData } from 'discord-api-types/v10'
+import { _channels_$_messages, Command, Content, Option } from 'discord-hono'
 import { getCrossGuild } from '../db/get-cross-guild.js'
 import { getGuild } from '../db/get-guild.js'
 import { getNextId } from '../db/get-next-id.js'
