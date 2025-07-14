@@ -13,15 +13,11 @@
     }
   },
   "linter": {
-    "domains": {
-      "project": "recommended",
-      "test": "recommended"
-    },
     "rules": {
       "recommended": true
     }
   },
   "files": {
-    "includes": ["**/src/**", "**/*.md", "**/*.json", "**/*.jsonc", "*.md", "*.json", "*.jsonc"]
+    "includes": ["*/src/**", "**/*.md", "**/*.json", "**/*.jsonc"]
   }
 }
