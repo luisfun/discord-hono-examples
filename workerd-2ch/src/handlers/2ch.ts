@@ -7,7 +7,7 @@ import { setCrossLog } from '../db/set-cross-log.js'
 import { setGuild } from '../db/set-guild.js'
 import { factory } from '../init.js'
 
-export const command_2ch = factory.command<{ text: string; image?: string }>(
+export const command_2ch = factory.command(
   new Command('2ch', '匿名メッセージ').options(
     new Option('text', '文字').required(),
     new Option('image', '画像', 'Attachment'),

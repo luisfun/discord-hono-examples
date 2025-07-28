@@ -10,13 +10,13 @@
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250510.0",
-    "@types/node": "^22.15.17",
-    "discord-api-types": "^0.38.5",
+    "@cloudflare/workers-types": "^4.20250726.0",
+    "@types/node": "^24.1.0",
+    "discord-api-types": "^0.38.17",
     "typescript": "^5.8.3",
-    "wrangler": "^4.14.4"
+    "wrangler": "^4.26.0"
   },
   "dependencies": {
-    "discord-hono": "^0.19.3"
+    "discord-hono": "^0.19.4"
   }
 }

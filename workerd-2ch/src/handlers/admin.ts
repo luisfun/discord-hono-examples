@@ -112,7 +112,7 @@ export const command_admin = factory.command(new Command('admin', '管理者用'
 )
 
 // チャンネル選択後の表示
-export const component_set_channel = factory.component<{ set_channel: [string] }, Select<'Channel'>>(
+export const component_set_channel = factory.component(
   new Select('set_channel', 'Channel').placeholder('送信チャンネルを選択'),
   c =>
     c.update().resDefer(c =>
@@ -155,7 +155,7 @@ export const component_switch_cross = factory.component<{ custom_id: SwitchCusto
   },
 )
 const BREAKUP_WORD = '解散する'
-export const modal_breakup_cross = factory.modal<{ breakup_cross: string }>(
+export const modal_breakup_cross = factory.modal(
   new Modal('breakup_cross', 'クロス鯖を解散').row(
     new TextInput('breakup_cross', `「${BREAKUP_WORD}」と入力`).placeholder(BREAKUP_WORD).required(),
   ),
@@ -178,7 +178,7 @@ export const modal_breakup_cross = factory.modal<{ breakup_cross: string }>(
     ),
 )
 const EXIT_WORD = '脱退する'
-export const modal_exit_cross = factory.modal<{ exit_cross: string }>(
+export const modal_exit_cross = factory.modal(
   new Modal('exit_cross', 'クロス鯖から脱退').row(
     new TextInput('exit_cross', `「${EXIT_WORD}」と入力`).placeholder(EXIT_WORD).required(),
   ),
@@ -207,7 +207,7 @@ export const component_invite_cross = factory.component(
   new Button('invite_cross', ['➡️', 'クロス鯖へ招待']).disabled(),
   c => c.resModal(modal_invite_cross.modal),
 )
-export const modal_invite_cross = factory.modal<{ invite_cross: string }>(
+export const modal_invite_cross = factory.modal(
   new Modal('invite_cross', 'クロス鯖へ招待').row(
     new TextInput('invite_cross', '追加するサーバーIDを入力').placeholder('123456789123456789').required(),
   ),
