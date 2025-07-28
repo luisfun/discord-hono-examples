@@ -7,10 +7,9 @@
     "register": "tsc && node --env-file=.env dist/register.js",
     "deploy": "wrangler deploy --minify",
     "log": "wrangler tail",
-    "cf-typegen": "wrangler types"
+    "type-gen": "wrangler types"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250726.0",
     "@types/node": "^24.1.0",
     "discord-api-types": "^0.38.17",
     "typescript": "^5.8.3",
