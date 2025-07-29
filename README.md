@@ -1,4 +1,4 @@
-# 🔥 Discord Hono Examples [![npm v](https://img.shields.io/npm/v/discord-hono)](https://www.npmjs.com/package/discord-hono) [![Discord](https://img.shields.io/discord/1331893810501914694?label=Discord)](https://discord.gg/KFAgHFwBsr)
+# 🔥 Discord Hono [![npm v](https://img.shields.io/npm/v/discord-hono)](https://www.npmjs.com/package/discord-hono) [![Discord](https://img.shields.io/discord/1331893810501914694?label=Discord)](https://discord.gg/KFAgHFwBsr)
 
 [👉 Documentation](https://discord-hono.luis.fun)
 
@@ -7,9 +7,6 @@
 - [workerd-hello-world](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-hello-world): Basic
 - [workerd-use-factory](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-use-factory): Basic - Recommended style
 - [workerd-2ch](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-2ch): Anonymous posting (ja)
----
-- Environment Prefixes
-  - `workerd`: Cloudflare Workers
 
 ## Links
 
