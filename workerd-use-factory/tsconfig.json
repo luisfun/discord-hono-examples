@@ -1,5 +1,5 @@
 {
-	"compilerOptions": {
+  "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
     /* Language and Environment */
     "target": "es2021",
@@ -27,7 +27,7 @@
     //"allowImportingTsExtensions": true,
     //"rewriteRelativeImportExtensions": true,
     "verbatimModuleSyntax": true
-	},
-	"exclude": ["test"],
-	"include": ["worker-configuration.d.ts", "src/**/*.ts"]
+  },
+  "exclude": ["test"],
+  "include": ["worker-configuration.d.ts", "src/**/*.ts"]
 }
