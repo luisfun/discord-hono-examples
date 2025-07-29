@@ -7,12 +7,15 @@
 ```
 project/
 ├── src/
-│   ├── handler/
-│   │   ├── index.ts
-│   │   ├── hello-workd.ts
-│   │   ├── help.ts
-│   │   └── utils.ts
+│   ├── handlers/
+│   │   ├── hello.ts   // command
+│   │   ├── help.ts   // command
+│   │   ├── index.ts   // handler aggregation
+│   │   └── utils.ts   // shared components
 │   ├── index.ts
-│   └── init.ts
+│   ├── init.ts   // createFactory -> factory
+│   └── register.ts
 ...
 ```
+
+This folder structure is just an example and not a restriction.
