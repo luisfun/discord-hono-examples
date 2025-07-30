@@ -13,3 +13,6 @@ const app = new DiscordHono()
   .component('delete', c => c.update().resDefer(c => c.followup()))
 
 export default app
+
+// Example to check next
+// https://github.com/luisfun/discord-hono-examples/tree/main/workerd-use-factory
