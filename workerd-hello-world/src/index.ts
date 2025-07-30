@@ -1,13 +1,6 @@
 import { Button, Components, DiscordHono } from 'discord-hono'
 
-type AppEnv = {
-  Bindings: Env
-  Variables: {
-    name?: string
-  }
-}
-
-const app = new DiscordHono<AppEnv>()
+const app = new DiscordHono()
   .command('hello', c => c.res(`Hello, ${c.var.name ?? 'World'}!`))
   .command('help', c =>
     c.res({
@@ -17,6 +10,6 @@ const app = new DiscordHono<AppEnv>()
       ),
     }),
   )
-  .component('delete', c => c.resDeferUpdate(c.followupDelete))
+  .component('delete', c => c.update().resDefer(c => c.followup()))
 
 export default app
