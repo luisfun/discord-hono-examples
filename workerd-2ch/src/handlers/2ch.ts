@@ -1,5 +1,5 @@
 import type { APIChatInputApplicationCommandInteractionData } from 'discord-api-types/v10'
-import { _channels_$_messages, Command, Content, Option } from 'discord-hono'
+import { _channels_$_messages, Command, Option } from 'discord-hono'
 import { getCrossGuild } from '../db/get-cross-guild.js'
 import { getGuild } from '../db/get-guild.js'
 import { getNextId } from '../db/get-next-id.js'
@@ -29,22 +29,23 @@ export const command_2ch = factory.command(
         const name = '名無しさん'
         const time = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
         const hashId = await toHashId(time.split(' ')[0] + c.interaction.member?.user?.id)
-        const url = (c.interaction.data as APIChatInputApplicationCommandInteractionData).resolved?.attachments?.[
+        const image = (c.interaction.data as APIChatInputApplicationCommandInteractionData).resolved?.attachments?.[
           c.var.image ?? 0
-        ]?.url
+        ]
 
         // message json
-        const flags = 1 << 15 // IS_COMPONENTS_V2
-        const components = [
-          new Content(`-# **${index}${name}：${time} ID:${hashId}**`), // flavor text
-          new Content(c.var.text),
-          url ? new Content(url, 'Media Gallery') : null,
-        ].filter(e => !!e)
+        const content = `-# **${index}${name}：${time} ID:${hashId}**\n${c.var.text}`
+        const file = image
+          ? {
+              blob: new Blob([await fetch(image.url).then(r => r.arrayBuffer())]),
+              name: image.filename,
+            }
+          : undefined
 
         // send message
         const errorArray = await Promise.all(
           channels.map(async channel => {
-            const res = await c.rest('POST', _channels_$_messages, [channel], { flags, components }).then(r => r.json())
+            const res = await c.rest('POST', _channels_$_messages, [channel], { content }, file).then(r => r.json())
             // チャンネルが不正の時、そのチャンネルをDBから削除。guildやcross_guildはそのまま保持。
             if ('message' in res && res.message === 'Unknown Channel') {
               const errorGuild = cross.find(e => e.channel_id === channel)
