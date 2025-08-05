@@ -1,5 +1,5 @@
 import type { APIChatInputApplicationCommandInteractionData } from 'discord-api-types/v10'
-import { _channels_$_messages, Command, Option } from 'discord-hono'
+import { _channels_$_messages, Command, Content, Option } from 'discord-hono'
 import { getCrossGuild } from '../db/get-cross-guild.js'
 import { getGuild } from '../db/get-guild.js'
 import { getNextId } from '../db/get-next-id.js'
@@ -34,7 +34,12 @@ export const command_2ch = factory.command(
         ]
 
         // message json
-        const content = `-# **${index}${name}：${time} ID:${hashId}**\n${c.var.text}`
+        const flags = 1 << 15 // IS_COMPONENTS_V2
+        const components = [
+          new Content(`-# **${index}${name}：${time} ID:${hashId}**`), // flavor text
+          new Content(c.var.text),
+          image ? new Content(`attachment://${image.filename}`, 'Media Gallery') : null,
+        ].filter(e => !!e)
         const file = image
           ? {
               blob: new Blob([await fetch(image.url).then(r => r.arrayBuffer())]),
@@ -45,7 +50,9 @@ export const command_2ch = factory.command(
         // send message
         const errorArray = await Promise.all(
           channels.map(async channel => {
-            const res = await c.rest('POST', _channels_$_messages, [channel], { content }, file).then(r => r.json())
+            const res = await c
+              .rest('POST', _channels_$_messages, [channel], { flags, components }, file)
+              .then(r => r.json())
             // チャンネルが不正の時、そのチャンネルをDBから削除。guildやcross_guildはそのまま保持。
             if ('message' in res && res.message === 'Unknown Channel') {
               const errorGuild = cross.find(e => e.channel_id === channel)
