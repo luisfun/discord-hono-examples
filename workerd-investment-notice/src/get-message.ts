@@ -73,7 +73,10 @@ export const getMessage = async (): Promise<WebhookData | undefined> => {
       }
     })
     //if (!drawdowns.some(d => d.alert)) return
-    return `## GeoMax\n${navText}\n### 期間最大下落率、S&P500差分${drawdowns.map(m => m.text).join('')}`
+    return {
+      flags: 1 << 2, // No embeds
+      content: `## GeoMax\n${navText}\n### 期間最大下落率、S&P500差分${drawdowns.map(m => m.text).join('')}\n### [比較チャート](https://www.wealthadvisor.co.jp/comparison?c1=2018070301&c2=2018013110&c3=2023090601)`,
+    }
   } catch (e: unknown) {
     console.error(e)
     return (e as Error)?.message || 'Error: getMessage'
