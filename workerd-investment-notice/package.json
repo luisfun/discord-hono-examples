@@ -1,14 +1,18 @@
 {
-	"name": "workerd-investment-notice",
-	"version": "0.0.0",
-	"private": true,
-	"scripts": {
-		"deploy": "wrangler deploy --minify",
-		"dev": "wrangler dev --test-scheduled",
-		"type-gen": "wrangler types"
-	},
-	"devDependencies": {
-		"typescript": "^5.9.3",
-		"wrangler": "^4.42.1"
-	}
+  "name": "discord-bot-investment-notice",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy --minify",
+    "dev": "wrangler dev --test-scheduled",
+    "type-gen": "wrangler types"
+  },
+  "devDependencies": {
+    "discord-api-types": "^0.38.29",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.42.2"
+  },
+  "dependencies": {
+    "discord-hono": "^0.20.1"
+  }
 }
