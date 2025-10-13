@@ -85,16 +85,15 @@ export const getMessage = async (): Promise<WebhookData | undefined> => {
       }
     })
     //if (!dataset.some(d => d.alert)) return
-    const texts = [
-      '## GeoMax',
-      `-# 基準価額 ${fund.nav}円 前日比 ${navDiffRate.toFixed(2)}%`,
-      `\n-# 期間 ： 騰落率 ｜ S&P500差分${dataset.map(m => m.changeText).join('')}`,
-      `### 期間：ドローダウン｜S&P500差分${dataset.map(m => m.drawdownText).join('')}`,
-      '### [比較チャート](https://www.wealthadvisor.co.jp/comparison?c1=2018070301&c2=2018013110&c3=2023090601)',
-    ]
     return {
       flags: 1 << 2, // No embeds
-      content: texts.join('\n'),
+      content: [
+        '## GeoMax',
+        `-# 基準価額 ${fund.nav}円 前日比 ${navDiffRate.toFixed(2)}%`,
+        `\n-# 期間 ： 騰落率 ｜ S&P500差分${dataset.map(m => m.changeText).join('')}`,
+        `### 期間：ドローダウン｜S&P500差分${dataset.map(m => m.drawdownText).join('')}`,
+        '### [比較チャート](https://www.wealthadvisor.co.jp/comparison?c1=2018070301&c2=2018013110&c3=2023090601)',
+      ].join('\n'),
     }
   } catch (e: unknown) {
     console.error(e)
