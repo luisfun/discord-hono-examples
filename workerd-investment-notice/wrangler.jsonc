@@ -41,6 +41,6 @@
    */
   // "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
   "triggers": {
-    "crons": ["0 0 * * mon-fri"]
+    "crons": ["0 15 * * mon-fri"] // JST 火～土 0:00
   }
 }

@@ -85,10 +85,14 @@ export const getMessage = async (): Promise<WebhookData | undefined> => {
       }
     })
     //if (!dataset.some(d => d.alert)) return
+
+    const date = new Date(geomax.uploaded_time)
+    if (date.getDate() !== new Date().getDate()) return
+
     return {
       flags: 1 << 2, // No embeds
       content: [
-        '## GeoMax',
+        `## GeoMax (${date.getMonth() + 1}/${date.getDate()})`,
         `-# 基準価額 ${fund.nav}円 前日比 ${navDiffRate.toFixed(2)}%`,
         `\n-# 期間 ： 騰落率 ｜ S&P500差分${dataset.map(m => m.changeText).join('')}`,
         `### 期間：ドローダウン｜S&P500差分${dataset.map(m => m.drawdownText).join('')}`,
