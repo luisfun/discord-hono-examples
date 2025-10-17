@@ -69,8 +69,8 @@ export const getMessage = async (): Promise<WebhookData | undefined> => {
       // 日数が足りない場合は打ち消し線を付与
       const fl = navDaily.length < day ? '~~' : ''
       // biome-ignore format: 三項演算子
-      // 下落率強調ライン -5%、-20%、-30%、-60%
-      const rate2star = day <= 1 ? drawdownGeomax < -5 : day <= 21 ? drawdownGeomax < -20 : day <= 130 ? drawdownGeomax < -30 : drawdownGeomax < -60
+      // 下落率強調ライン -6%、-20%、-30%、-60%
+      const rate2star = day <= 1 ? drawdownGeomax < -6 : day <= 21 ? drawdownGeomax < -20 : day <= 130 ? drawdownGeomax < -30 : drawdownGeomax < -60
       const r2 = rate2star ? '**' : ''
       // biome-ignore format: 三項演算子
       // 差分強調ライン -3%、-10%、-15%、-30%
