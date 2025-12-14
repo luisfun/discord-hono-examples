@@ -83,7 +83,7 @@ export const getMessage = async (): Promise<WebhookData | undefined> => {
     //if (!dataset.some(d => d.alert)) return
 
     const date = new Date(geomax.uploaded_time)
-    //if (date.getDate() !== new Date().getDate()) return
+    if (date.getDate() !== new Date().getDate()) return
 
     return {
       flags: 1 << 2, // No embeds
