@@ -61,41 +61,36 @@ export const getMessage = async (): Promise<WebhookData | undefined> => {
 
       // ドローダウン計算
       const maxGeomax = Math.max(...navDaily.map(r => r.navGeomax))
-      const maxSp500 = Math.max(...navDaily.map(r => r.navSp500))
       const drawdownGeomax = ((navGeomax - maxGeomax) / maxGeomax) * 100
-      const drawdownSp500 = ((navSp500 - maxSp500) / maxSp500) * 100
-      const drawdownDiff = drawdownGeomax - drawdownSp500
 
       // 日数が足りない場合は打ち消し線を付与
       const fl = navDaily.length < day ? '~~' : ''
       // biome-ignore format: 三項演算子
+      // 差分強調ライン -3%、-10%、-15%、-30%
+      const diff2star = day <= 1 ? changeRateDiff < -3 : day <= 21 ? changeRateDiff < -10 : day <= 130 ? changeRateDiff < -15 : changeRateDiff < -30
+      const d2 = diff2star ? '**' : ''
+      // biome-ignore format: 三項演算子
       // 下落率強調ライン -6%、-20%、-30%、-60%
       const rate2star = day <= 1 ? drawdownGeomax < -6 : day <= 21 ? drawdownGeomax < -20 : day <= 130 ? drawdownGeomax < -30 : drawdownGeomax < -60
       const r2 = rate2star ? '**' : ''
-      // biome-ignore format: 三項演算子
-      // 差分強調ライン -3%、-10%、-15%、-30%
-      const diff2star = day <= 1 ? drawdownDiff < -3 : day <= 21 ? drawdownDiff < -10 : day <= 130 ? drawdownDiff < -15 : drawdownDiff < -30
-      const d2 = diff2star ? '**' : ''
       const alert = rate2star || diff2star
       return {
         day: Math.min(day, navDaily.length),
-        changeText: `\n-# ${fl + label + fl} ： ${changeRateGeomax.toFixed(2)}% ｜ ${changeRateDiff.toFixed(2)}%`,
-        drawdownText: `\n${alert ? '' : '-# '}${fl + label + fl} ： ${r2}${drawdownGeomax.toFixed(2)}%${r2} ｜ ${d2}${drawdownDiff.toFixed(2)}%${d2}`,
+        text: `\n${alert ? '' : '-# '}${fl + label + fl} ： ${r2}${drawdownGeomax.toFixed(1)}%${r2} ｜ ${d2}${changeRateDiff.toFixed(1)}%${d2}`,
         alert,
       }
     })
     //if (!dataset.some(d => d.alert)) return
 
     const date = new Date(geomax.uploaded_time)
-    if (date.getDate() !== new Date().getDate()) return
+    //if (date.getDate() !== new Date().getDate()) return
 
     return {
       flags: 1 << 2, // No embeds
       content: [
         `## GeoMax (${date.getMonth() + 1}/${date.getDate()})`,
-        `-# 基準価額 ${fund.nav}円 前日比 ${navDiffRate.toFixed(2)}%`,
-        `\n-# 期間 ： 騰落率 ｜ S&P500差分${dataset.map(m => m.changeText).join('')}`,
-        `### 期間：ドローダウン｜S&P500差分${dataset.map(m => m.drawdownText).join('')}`,
+        `-# 基準価額 ${fund.nav}円 前日比 ${navDiffRate.toFixed(1)}%`,
+        `### 期間：下落率｜SPY騰落差${dataset.map(m => m.text).join('')}`,
         '### [比較チャート](https://www.wealthadvisor.co.jp/comparison?c1=2018070301&c2=2018013110&c3=2023090601)',
       ].join('\n'),
     }
