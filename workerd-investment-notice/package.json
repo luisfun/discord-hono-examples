@@ -10,7 +10,7 @@
   "devDependencies": {
     "discord-api-types": "^0.38.29",
     "typescript": "^5.9.3",
-    "wrangler": "^4.42.2"
+    "wrangler": "^4.59.1"
   },
   "dependencies": {
     "discord-hono": "^0.20.1"

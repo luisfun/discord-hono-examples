@@ -13,7 +13,7 @@
     "@types/node": "^24.3.0",
     "discord-api-types": "^0.38.22",
     "typescript": "^5.9.2",
-    "wrangler": "^4.33.1"
+    "wrangler": "^4.59.1"
   },
   "dependencies": {
     "discord-hono": "^0.19.5"
