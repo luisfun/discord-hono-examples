@@ -8,11 +8,11 @@
     "type-gen": "wrangler types"
   },
   "devDependencies": {
-    "discord-api-types": "^0.38.29",
+    "discord-api-types": "^0.38.38",
     "typescript": "^5.9.3",
-    "wrangler": "^4.42.2"
+    "wrangler": "^4.65.0"
   },
   "dependencies": {
-    "discord-hono": "^0.20.1"
+    "discord-hono": "^0.20.3"
   }
 }

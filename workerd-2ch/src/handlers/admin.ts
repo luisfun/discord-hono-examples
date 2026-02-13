@@ -77,11 +77,7 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
   const components = new Components()
   if (cross_guild_id)
     components.row(
-      component_log.component
-        .label('ログを表示')
-        .emoji('📜')
-        .custom_id('')
-        .disabled(!guild?.cross_guild_id), // なぜかオーバーライトが必要
+      component_log.component.label('ログを表示').emoji('📜').custom_id('').disabled(!guild?.cross_guild_id), // なぜかオーバーライトが必要
     )
   components.row(component_set_channel.component)
   if (guild_id) components.row(component_switch_cross.component, component_invite_cross.component)
