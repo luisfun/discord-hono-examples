@@ -14,6 +14,7 @@
     "allowJs": true,
     "checkJs": false,
     /* Emit */
+    "rootDir": "./src",
     "outDir": "./dist",
     /* Interop Constraints */
     "isolatedModules": true,

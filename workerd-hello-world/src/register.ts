@@ -1,8 +1,8 @@
-import { Command, Option, register } from 'discord-hono'
+import { makeSlashCommand, makeStringOption, register } from 'discord-hono'
 
 const commands = [
-  new Command('hello', 'Hello, World!').options(new Option('name', 'Your name')),
-  new Command('help', 'Docs URL'),
+  makeSlashCommand('hello', 'Hello, World!').options([makeStringOption('name', 'Your name')]),
+  makeSlashCommand('help', 'Docs URL'),
 ]
 
 register(

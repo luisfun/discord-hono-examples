@@ -1,13 +1,15 @@
-import { Button, Components, DiscordHono } from 'discord-hono'
+import { DiscordHono, makeActionRow, makeButton, makeLinkButton } from 'discord-hono'
 
 const app = new DiscordHono()
   .command('hello', c => c.res(`Hello, ${c.var.name ?? 'World'}!`))
   .command('help', c =>
     c.res({
-      components: new Components().row(
-        new Button('https://discord-hono.luis.fun', ['📑', 'Docs'], 'Link'),
-        new Button('delete', ['🗑️', 'Delete']),
-      ),
+      components: [
+        makeActionRow([
+          makeLinkButton('https://discord-hono.luis.fun', ['📑', 'Docs']),
+          makeButton('delete', ['🗑️', 'Delete']),
+        ]),
+      ],
     }),
   )
   .component('delete', c => c.update().resDefer(c => c.followup()))

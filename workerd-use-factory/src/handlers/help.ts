@@ -1,12 +1,11 @@
-import { Button, Command, Components } from 'discord-hono'
+import { makeActionRow, makeLinkButton, makeSlashCommand } from 'discord-hono'
 import { factory } from '../init.js'
 import { component_delete } from './utils.js'
 
-export const command_help = factory.command(new Command('help', 'response help'), c =>
+export const command_help = factory.command(makeSlashCommand('help', 'response help'), c =>
   c.res({
-    components: new Components().row(
-      new Button('https://discord-hono.luis.fun', ['📑', 'Docs'], 'Link'),
-      component_delete.component,
-    ),
+    components: [
+      makeActionRow([makeLinkButton('https://discord-hono.luis.fun', ['📑', 'Docs']), component_delete.component]),
+    ],
   }),
 )

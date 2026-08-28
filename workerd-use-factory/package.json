@@ -10,12 +10,12 @@
     "type-gen": "wrangler types"
   },
   "devDependencies": {
-    "@types/node": "^25.2.3",
-    "discord-api-types": "^0.38.38",
-    "typescript": "^5.9.3",
-    "wrangler": "^4.65.0"
+    "@types/node": "^26.3.0",
+    "discord-api-types": "^0.38.53",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.126.0"
   },
   "dependencies": {
-    "discord-hono": "^0.20.3"
+    "discord-hono": "^0.22.0"
   }
 }
