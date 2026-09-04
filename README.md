@@ -6,6 +6,7 @@
 
 - [workerd-hello-world](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-hello-world): Basic
 - [workerd-use-factory](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-use-factory): Basic - Recommended style
+- [workerd-subcommand-separation](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-subcommand-separation): When Using Subcommands
 - [workerd-2ch](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-2ch): Anonymous posting (ja)
 - [workerd-investment-notice](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-investment-notice): Not a bot, webhook only (ja)
 
