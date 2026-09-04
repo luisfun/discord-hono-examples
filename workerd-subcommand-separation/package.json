@@ -3,17 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "start": "wrangler dev",
-    "test": "vitest",
+    "register": "tsc && node --env-file=.env dist/register.js",
+    "deploy": "wrangler deploy --minify",
+    "log": "wrangler tail",
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {
-    "@cloudflare/vitest-plugin": "^1.0.0",
     "@types/node": "^26.4.1",
-    "typescript": "^5.5.2",
-    "vitest": "~4.1.0",
+    "discord-api-types": "^0.38.54",
+    "typescript": "^7.0.2",
     "wrangler": "^4.128.0"
+  },
+  "dependencies": {
+    "discord-hono": "^0.22.1"
   }
 }
