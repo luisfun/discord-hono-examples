@@ -31,12 +31,10 @@ export const sub_public_poll2 = factory.subCommand(
     const poll = makePoll('', [])
       .question(makePollMedia('question'))
       .answers([
-        answer
-          .clone()
-          .poll_media({
-            text: 'Apple',
-            emoji: { id: null, name: '🍎' },
-          } as const),
+        answer.clone().poll_media({
+          text: 'Apple',
+          emoji: { id: null, name: '🍎' },
+        } as const),
         answer,
         answer.clone().poll_media({ text: 'Cherry' as const }),
         makePollAnswer(
