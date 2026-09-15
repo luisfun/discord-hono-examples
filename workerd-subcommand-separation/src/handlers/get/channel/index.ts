@@ -8,6 +8,8 @@ import * as meta from './meta.js'
 const handlers = Object.values({ ...meta })
 
 export const subcommand_group_channel = factory.subCommandGroup(
-  makeSubCommandGroup('channel', 'Channel group').options(factory.getSubCommands(handlers)),
+  makeSubCommandGroup('channel', 'Channel group').options(
+    factory.getSubCommands(handlers),
+  ),
   factory.subLoader(handlers),
 )

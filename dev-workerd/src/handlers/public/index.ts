@@ -9,6 +9,8 @@ import * as poll from './poll'
 const handlers = Object.values({ ...hello, ...poll })
 
 export const command_public = factory.command(
-  makeSlashCommand('public', 'Public').options(factory.getSubCommands(handlers)),
+  makeSlashCommand('public', 'Public').options(
+    factory.getSubCommands(handlers),
+  ),
   factory.subLoader(handlers),
 )

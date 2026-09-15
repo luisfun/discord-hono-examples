@@ -24,7 +24,9 @@ type SwitchCustomId = 'up' | 'breakup' | 'exit'
 const MAX_CROSS_GUILD = 10
 const MAX_LOG_DISPLAY = 20
 
-const getStatusMessage = async (c: CommandContext | ComponentContext | ModalContext) => {
+const getStatusMessage = async (
+  c: CommandContext | ComponentContext | ModalContext,
+) => {
   // get database data
   const guild = await getGuild(c.env.DB, c.interaction.guild_id)
   const cross = await getCrossGuild(c.env.DB, guild?.cross_guild_id)
@@ -36,11 +38,17 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
       !guild?.cross_guild_id ? '未設定' :
       guild?.cross_guild_id === guild.guild_id ? 'ホスト' :
       `${cross.find(e => e.guild_name === guild.cross_guild_id)?.guild_name} がホスト`
-  const crossGuildList = !guild?.cross_guild_id ? '' : `\n${cross.map(e => `  - ${e.guild_name}`).join('\n')}`
+  const crossGuildList = !guild?.cross_guild_id
+    ? ''
+    : `\n${cross.map(e => `  - ${e.guild_name}`).join('\n')}`
 
   // component restyle
   const { channel_id, guild_id, cross_guild_id } = guild ?? {}
-  if (channel_id) component_set_channel.component.default_values({ id: channel_id, type: 'channel' })
+  if (channel_id)
+    component_set_channel.component.default_values({
+      id: channel_id,
+      type: 'channel',
+    })
   if (guild_id) {
     // switch control
     if (!cross_guild_id) {
@@ -60,7 +68,8 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
         .style('Danger')
     }
     // invite control
-    if (guild_id === cross_guild_id) component_invite_cross.component.disabled(false)
+    if (guild_id === cross_guild_id)
+      component_invite_cross.component.disabled(false)
     else component_invite_cross.component.disabled() // なぜかオーバーライトが必要
   }
   if (cross.length >= MAX_CROSS_GUILD) {
@@ -77,10 +86,18 @@ const getStatusMessage = async (c: CommandContext | ComponentContext | ModalCont
   const components = new Components()
   if (cross_guild_id)
     components.row(
-      component_log.component.label('ログを表示').emoji('📜').custom_id('').disabled(!guild?.cross_guild_id), // なぜかオーバーライトが必要
+      component_log.component
+        .label('ログを表示')
+        .emoji('📜')
+        .custom_id('')
+        .disabled(!guild?.cross_guild_id), // なぜかオーバーライトが必要
     )
   components.row(component_set_channel.component)
-  if (guild_id) components.row(component_switch_cross.component, component_invite_cross.component)
+  if (guild_id)
+    components.row(
+      component_switch_cross.component,
+      component_invite_cross.component,
+    )
 
   return { embeds, components }
 }
@@ -99,12 +116,14 @@ const followupTryCatch = async (
 }
 
 // 最初の表示
-export const command_admin = factory.command(new Command('admin', '管理者用'), c =>
-  c.resDefer(c =>
-    followupTryCatch(c, async () => {
-      await c.followup(await getStatusMessage(c))
-    }),
-  ),
+export const command_admin = factory.command(
+  new Command('admin', '管理者用'),
+  c =>
+    c.resDefer(c =>
+      followupTryCatch(c, async () => {
+        await c.followup(await getStatusMessage(c))
+      }),
+    ),
 )
 
 // チャンネル選択後の表示
@@ -115,45 +134,63 @@ export const component_set_channel = factory.component(
       followupTryCatch(c, async () => {
         if (!c.interaction.guild_id) throw new Error('Guild ID is undefined')
         const old = await getGuild(c.env.DB, c.interaction.guild_id)
-        const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
-        await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, c.var.set_channel[0], old?.cross_guild_id)
+        const guildData = await c
+          .rest('GET', _guilds_$, [c.interaction.guild_id])
+          .then(r => r.json())
+        await setGuild(
+          c.env.DB,
+          c.interaction.guild_id,
+          guildData.name,
+          c.var.set_channel[0],
+          old?.cross_guild_id,
+        )
         await c.followup(await getStatusMessage(c))
       }),
     ),
 )
 
 // クロス鯖スイッチ後の表示
-export const component_switch_cross = factory.component<{ custom_id: SwitchCustomId }, Button>(
-  new Button('switch_cross', '').emoji('🔄'),
-  c => {
-    switch (c.var.custom_id) {
-      case 'up':
-        return c.update().resDefer(c =>
-          followupTryCatch(c, async () => {
-            if (!c.interaction.guild_id) throw new Error('Guild ID is undefined')
-            const old = await getGuild(c.env.DB, c.interaction.guild_id)
-            if (old?.cross_guild_id) throw new Error('Already cross guild')
-            const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
-            // cross guild creation
-            await createCrossLogTable(c.env.DB, c.interaction.guild_id)
-            await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, c.interaction.guild_id)
-            // message update
-            await c.followup(await getStatusMessage(c))
-          }),
-        )
-      case 'breakup':
-        return c.resModal(modal_breakup_cross.modal)
-      case 'exit':
-        return c.resModal(modal_exit_cross.modal)
-      default:
-        throw new Error('Invalid custom_id')
-    }
-  },
-)
+export const component_switch_cross = factory.component<
+  { custom_id: SwitchCustomId },
+  Button
+>(new Button('switch_cross', '').emoji('🔄'), c => {
+  switch (c.var.custom_id) {
+    case 'up':
+      return c.update().resDefer(c =>
+        followupTryCatch(c, async () => {
+          if (!c.interaction.guild_id) throw new Error('Guild ID is undefined')
+          const old = await getGuild(c.env.DB, c.interaction.guild_id)
+          if (old?.cross_guild_id) throw new Error('Already cross guild')
+          const guildData = await c
+            .rest('GET', _guilds_$, [c.interaction.guild_id])
+            .then(r => r.json())
+          // cross guild creation
+          await createCrossLogTable(c.env.DB, c.interaction.guild_id)
+          await setGuild(
+            c.env.DB,
+            c.interaction.guild_id,
+            guildData.name,
+            old?.channel_id,
+            c.interaction.guild_id,
+          )
+          // message update
+          await c.followup(await getStatusMessage(c))
+        }),
+      )
+    case 'breakup':
+      return c.resModal(modal_breakup_cross.modal)
+    case 'exit':
+      return c.resModal(modal_exit_cross.modal)
+    default:
+      throw new Error('Invalid custom_id')
+  }
+})
 const BREAKUP_WORD = '解散する'
 export const modal_breakup_cross = factory.modal(
   new Modal('breakup_cross', 'クロス鯖を解散').row(
-    new TextInput('breakup_cross', `「${BREAKUP_WORD}」と入力`).placeholder(BREAKUP_WORD).required(),
+    new TextInput('breakup_cross', `「${BREAKUP_WORD}」と入力`)
+      .placeholder(BREAKUP_WORD)
+      .required(),
   ),
   c =>
     c.update().resDefer(c =>
@@ -163,11 +200,25 @@ export const modal_breakup_cross = factory.modal(
         if (isBreakup) {
           await deleteCrossLogTable(c.env.DB, c.interaction.guild_id)
           const cross = await getCrossGuild(c.env.DB, c.interaction.guild_id)
-          await Promise.all(cross.map(g => setGuild(c.env.DB, g.guild_id, g.guild_name, g.channel_id, undefined)))
+          await Promise.all(
+            cross.map(g =>
+              setGuild(
+                c.env.DB,
+                g.guild_id,
+                g.guild_name,
+                g.channel_id,
+                undefined,
+              ),
+            ),
+          )
         }
         // message item
         const { embeds, components } = await getStatusMessage(c)
-        if (!isBreakup) embeds[0].fields({ name: '⚠️解散していません', value: '入力が間違っています' })
+        if (!isBreakup)
+          embeds[0].fields({
+            name: '⚠️解散していません',
+            value: '入力が間違っています',
+          })
         // update message
         await c.followup({ embeds, components })
       }),
@@ -176,7 +227,9 @@ export const modal_breakup_cross = factory.modal(
 const EXIT_WORD = '脱退する'
 export const modal_exit_cross = factory.modal(
   new Modal('exit_cross', 'クロス鯖から脱退').row(
-    new TextInput('exit_cross', `「${EXIT_WORD}」と入力`).placeholder(EXIT_WORD).required(),
+    new TextInput('exit_cross', `「${EXIT_WORD}」と入力`)
+      .placeholder(EXIT_WORD)
+      .required(),
   ),
   c =>
     c.update().resDefer(c =>
@@ -186,12 +239,24 @@ export const modal_exit_cross = factory.modal(
         // exit
         if (isExit) {
           const old = await getGuild(c.env.DB, c.interaction.guild_id)
-          const guildData = await c.rest('GET', _guilds_$, [c.interaction.guild_id]).then(r => r.json())
-          await setGuild(c.env.DB, c.interaction.guild_id, guildData.name, old?.channel_id, undefined)
+          const guildData = await c
+            .rest('GET', _guilds_$, [c.interaction.guild_id])
+            .then(r => r.json())
+          await setGuild(
+            c.env.DB,
+            c.interaction.guild_id,
+            guildData.name,
+            old?.channel_id,
+            undefined,
+          )
         }
         // message item
         const { embeds, components } = await getStatusMessage(c)
-        if (!isExit) embeds[0].fields({ name: '⚠️脱退していません', value: '入力が間違っています' })
+        if (!isExit)
+          embeds[0].fields({
+            name: '⚠️脱退していません',
+            value: '入力が間違っています',
+          })
         // update message
         await c.followup({ embeds, components })
       }),
@@ -205,13 +270,19 @@ export const component_invite_cross = factory.component(
 )
 export const modal_invite_cross = factory.modal(
   new Modal('invite_cross', 'クロス鯖へ招待').row(
-    new TextInput('invite_cross', '追加するサーバーIDを入力').placeholder('123456789123456789').required(),
+    new TextInput('invite_cross', '追加するサーバーIDを入力')
+      .placeholder('123456789123456789')
+      .required(),
   ),
   c =>
     c.update().resDefer(c =>
       followupTryCatch(c, async () => {
         const inviteGuild = await getGuild(c.env.DB, c.var.invite_cross)
-        if (inviteGuild && !inviteGuild.cross_guild_id && c.interaction.guild_id) {
+        if (
+          inviteGuild &&
+          !inviteGuild.cross_guild_id &&
+          c.interaction.guild_id
+        ) {
           // invite
           await setGuild(
             c.env.DB,
@@ -228,21 +299,35 @@ export const modal_invite_cross = factory.modal(
           inviteGuild.cross_guild_id ? 'いずれかのクロス鯖へ参加しています' :
           !c.interaction.guild_id ? '不明' : ''
         const { embeds, components } = await getStatusMessage(c)
-        if (failedMessage) embeds[0].fields({ name: '⚠️招待エラー', value: failedMessage })
-        else embeds[0].fields({ name: '✅招待成功', value: 'クロスサーバーに追加されました' }) // できたら無くてもいいようにしたい
+        if (failedMessage)
+          embeds[0].fields({ name: '⚠️招待エラー', value: failedMessage })
+        else
+          embeds[0].fields({
+            name: '✅招待成功',
+            value: 'クロスサーバーに追加されました',
+          }) // できたら無くてもいいようにしたい
         // update message
         await c.followup({ embeds, components })
       }),
     ),
 )
 
-const getMessageLogs = async (c: CommandContext | ComponentContext | ModalContext, page: number) => {
+const getMessageLogs = async (
+  c: CommandContext | ComponentContext | ModalContext,
+  page: number,
+) => {
   // get database data
   const guild = await getGuild(c.env.DB, c.interaction.guild_id)
   const cross = await getCrossGuild(c.env.DB, guild?.cross_guild_id)
-  const log = await getCrossLog(c.env.DB, guild?.cross_guild_id, MAX_LOG_DISPLAY * (page - 1), MAX_LOG_DISPLAY)
+  const log = await getCrossLog(
+    c.env.DB,
+    guild?.cross_guild_id,
+    MAX_LOG_DISPLAY * (page - 1),
+    MAX_LOG_DISPLAY,
+  )
 
-  const guildName = (guild_id: string | undefined) => cross.find(e => e.guild_id === guild_id)?.guild_name ?? 'Unknown'
+  const guildName = (guild_id: string | undefined) =>
+    cross.find(e => e.guild_id === guild_id)?.guild_name ?? 'Unknown'
   const maxPage = log.length / MAX_LOG_DISPLAY
   console.log(page, log)
 
@@ -250,7 +335,11 @@ const getMessageLogs = async (c: CommandContext | ComponentContext | ModalContex
   const embeds = [
     new Embed()
       .title('ログ')
-      .description(log.map(e => `${e.id}：<@${e.user_id}>：${guildName(e.guild_id)}`).join('\n')),
+      .description(
+        log
+          .map(e => `${e.id}：<@${e.user_id}>：${guildName(e.guild_id)}`)
+          .join('\n'),
+      ),
   ]
   const components = new Components().row(component_main.component).row(
     component_log.component
@@ -270,19 +359,23 @@ const getMessageLogs = async (c: CommandContext | ComponentContext | ModalContex
 }
 
 // ログ表示＋ページ送り
-export const component_log = factory.component(new Button('log', ['📜', 'ログを表示']), c =>
-  c.update().resDefer(c =>
-    followupTryCatch(c, async () => {
-      await c.followup(await getMessageLogs(c, Number(c.var.custom_id || 1)))
-    }),
-  ),
+export const component_log = factory.component(
+  new Button('log', ['📜', 'ログを表示']),
+  c =>
+    c.update().resDefer(c =>
+      followupTryCatch(c, async () => {
+        await c.followup(await getMessageLogs(c, Number(c.var.custom_id || 1)))
+      }),
+    ),
 )
 
 // 管理へ戻る
-export const component_main = factory.component(new Button('main', ['🏠', '管理へ戻る']), c =>
-  c.update().resDefer(c =>
-    followupTryCatch(c, async () => {
-      await c.followup(await getStatusMessage(c))
-    }),
-  ),
+export const component_main = factory.component(
+  new Button('main', ['🏠', '管理へ戻る']),
+  c =>
+    c.update().resDefer(c =>
+      followupTryCatch(c, async () => {
+        await c.followup(await getStatusMessage(c))
+      }),
+    ),
 )

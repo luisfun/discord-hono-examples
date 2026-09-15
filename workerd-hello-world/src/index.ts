@@ -1,4 +1,9 @@
-import { DiscordHono, makeActionRow, makeButton, makeLinkButton } from 'discord-hono'
+import {
+  DiscordHono,
+  makeActionRow,
+  makeButton,
+  makeLinkButton,
+} from 'discord-hono'
 
 const app = new DiscordHono()
   .command('hello', c => c.res(`Hello, ${c.var.name ?? 'World'}!`))

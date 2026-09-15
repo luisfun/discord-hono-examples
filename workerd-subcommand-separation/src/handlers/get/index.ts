@@ -10,6 +10,8 @@ export * from './help.js' // Re-export is required because this file includes co
 const handlers = Object.values({ ...channel, ...help })
 
 export const command_get = factory.command(
-  makeSlashCommand('get', 'Get Command').options(factory.getSubCommands(handlers)),
+  makeSlashCommand('get', 'Get Command').options(
+    factory.getSubCommands(handlers),
+  ),
   factory.subLoader(handlers),
 )

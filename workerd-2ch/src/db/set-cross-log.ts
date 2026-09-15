@@ -13,7 +13,9 @@ export const setCrossLog = (
   if (!cross_guild_id || !guild_id || !user_id) return
   return db.batch([
     db
-      .prepare(`INSERT INTO _${cross_guild_id} (guild_id, user_id, message, created_at) VALUES (?, ?, ?, ?)`)
+      .prepare(
+        `INSERT INTO _${cross_guild_id} (guild_id, user_id, message, created_at) VALUES (?, ?, ?, ?)`,
+      )
       .bind(guild_id, user_id, message ?? null, Date.now()),
     db.prepare(`
       DELETE FROM _${cross_guild_id}

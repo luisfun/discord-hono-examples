@@ -27,22 +27,30 @@ export const command_2ch = factory.command(
           : [guild?.channel_id ?? c.interaction.channel.id]
         const index = nextId ? `${nextId}：` : ''
         const name = '名無しさん'
-        const time = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
-        const hashId = await toHashId(time.split(' ')[0] + c.interaction.member?.user?.id)
-        const image = (c.interaction.data as APIChatInputApplicationCommandInteractionData).resolved?.attachments?.[
-          c.var.image ?? 0
-        ]
+        const time = new Date().toLocaleString('ja-JP', {
+          timeZone: 'Asia/Tokyo',
+        })
+        const hashId = await toHashId(
+          time.split(' ')[0] + c.interaction.member?.user?.id,
+        )
+        const image = (
+          c.interaction.data as APIChatInputApplicationCommandInteractionData
+        ).resolved?.attachments?.[c.var.image ?? 0]
 
         // message json
         const flags = 1 << 15 // IS_COMPONENTS_V2
         const components = [
           new Content(`-# **${index}${name}：${time} ID:${hashId}**`), // flavor text
           new Content(c.var.text),
-          image ? new Content(`attachment://${image.filename}`, 'Media Gallery') : null,
+          image
+            ? new Content(`attachment://${image.filename}`, 'Media Gallery')
+            : null,
         ].filter(e => !!e)
         const file = image
           ? {
-              blob: new Blob([await fetch(image.url).then(r => r.arrayBuffer())]),
+              blob: new Blob([
+                await fetch(image.url).then(r => r.arrayBuffer()),
+              ]),
               name: image.filename,
             }
           : undefined
@@ -51,7 +59,13 @@ export const command_2ch = factory.command(
         const errorArray = await Promise.all(
           channels.map(async channel => {
             const res = await c
-              .rest('POST', _channels_$_messages, [channel], { flags, components }, file)
+              .rest(
+                'POST',
+                _channels_$_messages,
+                [channel],
+                { flags, components },
+                file,
+              )
               .then(r => r.json())
             // チャンネルが不正の時、そのチャンネルをDBから削除。guildやcross_guildはそのまま保持。
             if ('message' in res && res.message === 'Unknown Channel') {
@@ -70,7 +84,8 @@ export const command_2ch = factory.command(
           }),
         )
         const isPostError =
-          !channels.includes(guild?.channel_id ?? c.interaction.channel.id) || errorArray.some(Boolean)
+          !channels.includes(guild?.channel_id ?? c.interaction.channel.id) ||
+          errorArray.some(Boolean)
 
         // set cross log
         await setCrossLog(
@@ -82,7 +97,11 @@ export const command_2ch = factory.command(
         )
 
         // delete followup message
-        await c.followup(isPostError ? 'Warn: 一部のチャンネルに送信できませんでした。' : undefined)
+        await c.followup(
+          isPostError
+            ? 'Warn: 一部のチャンネルに送信できませんでした。'
+            : undefined,
+        )
         // biome-ignore lint: any
       } catch (e: any) {
         console.error(e)
@@ -92,7 +111,11 @@ export const command_2ch = factory.command(
 )
 
 const toHashId = async (str: string) =>
-  Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))))
+  Array.from(
+    new Uint8Array(
+      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)),
+    ),
+  )
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')
     .substring(0, 4) // 4-digit hash ID

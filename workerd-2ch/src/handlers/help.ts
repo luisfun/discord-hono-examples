@@ -11,7 +11,9 @@ export const command_help = factory.command(new Command('help', 'ヘルプ'), c 
         '### クロス鯖\nクロスサーバーが設定されている場合、/2chコマンドで送信したメッセージが他のサーバーにも送信されます。',
       ),
       new Layout('Separator'),
-      new Layout('Action Row').components(new Button('https://luis.fun', '開発者', 'Link')),
+      new Layout('Action Row').components(
+        new Button('https://luis.fun', '開発者', 'Link'),
+      ),
     ],
   }),
 )

@@ -25,9 +25,9 @@ type SustenFundJson = {
 export const getMessage = async (): Promise<WebhookData | undefined> => {
   try {
     // 適切なAPIが見つからなかった。可能な限り https://www.am.mufg.jp/tool/webapi/ などを利用する。
-    const geomax: SustenFundJson = await fetch('https://static.susten.jp/funds/fund_realtime_data_geomax.json').then(
-      r => r.json(),
-    )
+    const geomax: SustenFundJson = await fetch(
+      'https://static.susten.jp/funds/fund_realtime_data_geomax.json',
+    ).then(r => r.json())
 
     // GeoMaxの基準価額と前日比
     const fund = geomax.funds.find(f => f.id === 111005)

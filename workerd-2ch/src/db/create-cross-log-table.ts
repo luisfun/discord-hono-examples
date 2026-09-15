@@ -11,7 +11,10 @@ export type CrossLogTableColumns = {
  *
  * columns: id, guild_id, user_id, message, created_at
  */
-export const createCrossLogTable = (db: D1Database, cross_guild_id: string | undefined) => {
+export const createCrossLogTable = (
+  db: D1Database,
+  cross_guild_id: string | undefined,
+) => {
   if (!cross_guild_id) throw new Error('cross_guild_id is undefined')
   return db
     .prepare(

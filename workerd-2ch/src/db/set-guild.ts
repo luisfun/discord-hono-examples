@@ -15,6 +15,12 @@ export const setGuild = (
     .prepare(
       `REPLACE INTO ${tableName} (guild_id, guild_name, channel_id, cross_guild_id, updated_at) VALUES (?, ?, ?, ?, ?)`,
     )
-    .bind(guild_id, guild_name, channel_id ?? null, cross_guild_id ?? null, Date.now())
+    .bind(
+      guild_id,
+      guild_name,
+      channel_id ?? null,
+      cross_guild_id ?? null,
+      Date.now(),
+    )
     .run()
 }

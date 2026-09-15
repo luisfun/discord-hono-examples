@@ -1,7 +1,9 @@
 import { makeSlashCommand, makeStringOption, register } from 'discord-hono'
 
 const commands = [
-  makeSlashCommand('hello', 'Hello, World!').options([makeStringOption('name', 'Your name')]),
+  makeSlashCommand('hello', 'Hello, World!').options([
+    makeStringOption('name', 'Your name'),
+  ]),
   makeSlashCommand('help', 'Docs URL'),
 ]
 
