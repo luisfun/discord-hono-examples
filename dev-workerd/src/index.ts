@@ -1,6 +1,6 @@
 import * as alpha from './alpha'
+import * as handlers from './handlers'
 import { factory } from './init'
-import * as handlers from './public'
 
 export default factory
   .discord()

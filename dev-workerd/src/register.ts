@@ -1,7 +1,7 @@
 import { register } from 'discord-hono'
 import * as alpha from './alpha'
+import * as handlers from './handlers'
 import { factory } from './init'
-import * as handlers from './public'
 
 register(
   factory.getCommands(Object.values({ ...alpha, ...handlers })),
