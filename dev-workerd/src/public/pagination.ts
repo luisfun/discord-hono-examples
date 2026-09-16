@@ -5,11 +5,11 @@ import {
   makeActionRow,
   makeButton,
   makeContainer,
+  makeSlashCommand,
   makeStringOption,
-  makeSubCommand,
   makeTextDisplay,
 } from 'discord-hono'
-import { factory } from '../../init.js'
+import { factory } from '../init'
 
 const pageContent = (
   c: CommandContext<Env> | ComponentContext<Env>,
@@ -44,8 +44,8 @@ const pageContent = (
     await c.followup({ components: [content, pagination] })
   })
 
-export const sub_pagination = factory.subCommand(
-  makeSubCommand('pagination', 'Pagination').options([
+export const command_pagination = factory.command(
+  makeSlashCommand('pagination', 'Pagination').options([
     makeStringOption('text', 'page content').required(true),
   ]),
   c => pageContent(c, 1, c.var.text),
