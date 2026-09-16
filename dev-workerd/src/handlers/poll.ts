@@ -4,10 +4,10 @@ import {
   makePollMedia,
   makeSlashCommand,
 } from 'discord-hono'
-import { factory } from '../init.js'
+import { factory } from '../init'
 
 export const command_poll = factory.command(
-  makeSlashCommand('poll', 'color poll!'),
+  makeSlashCommand('poll', 'Color poll'),
   c =>
     c.res({
       poll: makePoll('What is your favorite color?', [
@@ -24,7 +24,7 @@ export const command_poll = factory.command(
 )
 
 export const command_poll2 = factory.command(
-  makeSlashCommand('poll2', 'fruit poll!'),
+  makeSlashCommand('poll2', 'Fruit poll'),
   c => {
     const answer = makePollAnswer(makePollMedia(['🍌', 'Banana']))
     // Try hovering over `poll`

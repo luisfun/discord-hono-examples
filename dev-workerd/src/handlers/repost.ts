@@ -3,7 +3,7 @@ import {
   makeMessageCommand,
   makeTextDisplay,
 } from 'discord-hono'
-import { factory } from '../init.js'
+import { factory } from '../init'
 
 export const command_repost = factory.command(
   makeMessageCommand('repost'),
