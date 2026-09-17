@@ -1,3 +1,4 @@
+export * from './autocomplete'
 export * from './components-v2'
 export * from './image'
 export * from './modal'
