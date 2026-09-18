@@ -1,5 +1,6 @@
 export * from './autocomplete'
 export * from './components-v2'
+export * from './get'
 export * from './image'
 export * from './modal'
 export * from './pagination'
