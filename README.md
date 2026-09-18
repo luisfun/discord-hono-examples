@@ -10,6 +10,11 @@
 - [workerd-2ch](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-2ch): Anonymous posting (ja)
 - [workerd-investment-notice](https://github.com/luisfun/discord-hono-examples/tree/main/workerd-investment-notice): Not a bot, webhook only (ja)
 
+## Dev test app
+
+- [dev-workerd](https://github.com/luisfun/discord-hono-examples/tree/main/dev-workerd)
+  - [List of code examples](https://github.com/luisfun/discord-hono-examples/tree/main/dev-workerd/src/handlers)
+
 ## Links
 
 - [Discord Hono](https://github.com/luisfun/discord-hono)
