@@ -1,26 +1,26 @@
-## 開発で利用している、参考用コード集
+## Reference Code Used During Development
 
 ```
 project/
 ├── src/
-│   ├── alpha/      // リリース前機能の動作確認
+│   ├── alpha/      // Testing features before release
 │   │   └── ...
-│   ├── handlers/   // リリース済み機能の動作確認
+│   ├── handlers/   // Testing released features
 │   │   └── ...
 │   └── ...
 ...
 ```
 
-## 開発セットアップ
+## Development Setup
 
 - [discord-hono](https://github.com/luisfun/discord-hono)
 - [discord-hono-examples](https://github.com/luisfun/discord-hono-examples)
 
-2つのリポジトリをフォーク&クローンし、開発環境を構築
+Fork and clone both repositories to set up the development environment.
 
-### discord-hono を準備
+### Prepare discord-hono
 
-discord-hono をフォーク&クローン後、次のコマンドでローカル開発用のパッケージ環境を構築
+After forking and cloning `discord-hono`, run the following commands to set up the package for local development.
 
 ```sh
 npm ci
@@ -28,9 +28,9 @@ npm run build
 npm link
 ```
 
-### package インストール
+### Install the Package
 
-examples へ戻り次のコマンドでpackageをインストール
+Return to the examples repository and install the package with the following commands.
 
 ```sh
 cd dev-workerd
@@ -38,4 +38,4 @@ npm ci
 npm link discord-hono
 ```
 
-[Docs](https://discord-hono.luis.fun/guides/start/) を参考に、開発用Botを作成
+Create a development bot by following the [documentation](https://discord-hono.luis.fun/guides/start/).
