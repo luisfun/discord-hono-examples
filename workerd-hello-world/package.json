@@ -4,18 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "register": "tsc && node --env-file=.env dist/register.js",
+    "register": "tsx --env-file=.env src/register.ts",
     "deploy": "wrangler deploy --minify",
     "log": "wrangler tail",
-    "type-gen": "wrangler types"
+    "cf-typegen": "wrangler types"
   },
   "devDependencies": {
-    "@types/node": "^26.3.0",
-    "discord-api-types": "^0.38.53",
+    "@types/node": "^26.6.1",
+    "discord-api-types": "^0.38.55",
+    "tsx": "^4.23.13",
     "typescript": "^7.0.2",
-    "wrangler": "^4.126.0"
+    "wrangler": "^4.132.0"
   },
   "dependencies": {
-    "discord-hono": "^0.22.0"
+    "discord-hono": "^0.22.1"
   }
 }
