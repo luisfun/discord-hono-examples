@@ -1,2 +1,2 @@
 export * from './hello'
-export * from './response-debug'
+export * from './debug-response'

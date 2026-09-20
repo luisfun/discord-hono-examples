@@ -8,8 +8,8 @@ import {
 
 import { factory } from '../init.js'
 
-export const command_response_debug = factory.command(
-  makeSlashCommand('response-debug', 'Response debug').options([
+export const command_debug_response = factory.command(
+  makeSlashCommand('debug-response', 'Debug Response').options([
     makeBooleanOption('error', 'Intentionally trigger an error'),
   ]),
   c =>
@@ -19,7 +19,7 @@ export const command_response_debug = factory.command(
         c.var.error
           ? {
               content: 'e'.repeat(2001),
-              components: [makeActionRow([component_response_debug.component])],
+              components: [makeActionRow([component_debug_response.component])],
             }
           : 'Successful response',
       )
@@ -40,7 +40,7 @@ export const command_response_debug = factory.command(
     }),
 )
 
-export const component_response_debug = factory.component(
+export const component_debug_response = factory.component(
   { type: 2, custom_id: 'e'.repeat(101), style: 1 },
   c => c.res('debug'),
 )
