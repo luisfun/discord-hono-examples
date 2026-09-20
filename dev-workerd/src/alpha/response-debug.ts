@@ -1,34 +1,34 @@
 import {
   $channels$_$messages,
+  inspectResponse,
   makeActionRow,
   makeBooleanOption,
   makeSlashCommand,
-  responseDebug,
 } from 'discord-hono'
 
 import { factory } from '../init.js'
 
 export const command_response_debug = factory.command(
   makeSlashCommand('response-debug', 'Response debug').options([
-    makeBooleanOption('error', '意図的にエラーを発生させる'),
+    makeBooleanOption('error', 'Intentionally trigger an error'),
   ]),
   c =>
     c.resDefer(async c => {
-      // follow-up形式にし、レスポンスを取得
+      // Use the follow-up format and retrieve the response
       const res = await c.followup(
         c.var.error
           ? {
               content: 'e'.repeat(2001),
               components: [makeActionRow([component_response_debug.component])],
             }
-          : '正常なレスポンス',
+          : 'Successful response',
       )
 
-      // debug用テキストを作成
-      const debug = await responseDebug(res)
+      // Create debug text
+      const debug = await inspectResponse(res)
       console.log(debug.text)
 
-      // エラー場合はチャンネルに投稿
+      // Post to the channel on error
       if (!res.ok) {
         await c.rest(
           'POST',
