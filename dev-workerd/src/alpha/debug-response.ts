@@ -46,7 +46,7 @@ export const component_debug_response = factory.component(
 )
 
 // Modal Debug
-  /*
+/*
   c =>
     c.resDefer(async c => {
       const res = await c.rest(
@@ -59,4 +59,4 @@ export const component_debug_response = factory.component(
       console.log(debug.text)
     }),
   */
-  // c => c.resModal(modal_ticket_setup.modal),
+// c => c.resModal(modal_ticket_setup.modal),
