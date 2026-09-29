@@ -44,3 +44,19 @@ export const component_debug_response = factory.component(
   { type: 2, custom_id: 'e'.repeat(101), style: 1 },
   c => c.res('debug'),
 )
+
+// Modal Debug
+  /*
+  c =>
+    c.resDefer(async c => {
+      const res = await c.rest(
+        'POST',
+        $interactions$_$_$callback,
+        [c.interaction.id, c.interaction.token],
+        { type: 9, data: modal_ticket_setup.modal.toJSON() },
+      )
+      const debug = await inspectResponse(res)
+      console.log(debug.text)
+    }),
+  */
+  // c => c.resModal(modal_ticket_setup.modal),
