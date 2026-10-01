@@ -1,4 +1,4 @@
-import type { Locale as APILocale } from 'discord-api-types/v10'
+import type { Locale } from 'discord-api-types/v10'
 import {
   $channels$_,
   $channels$_$messages,
@@ -25,7 +25,7 @@ type CustomValues = [
   closed: string | undefined,
 ]
 
-type Locale = Extract<APILocale, 'en-US' | 'ja'>
+type SupportedLocale = Locale.EnglishUS | Locale.Japanese
 
 const loc = {
   cmd: {
@@ -63,6 +63,11 @@ const loc = {
       'en-US': 'Created a support channel. Please check it.',
       ja: 'お問い合わせチャンネルを作成しました。確認してください。',
     },
+    error: {
+      'en-US':
+        'Admin Notice\nOpen tickets category not found. Please reconfigure the ticket system.',
+      ja: '管理者へ\nオープンチケットのカテゴリが見つかりません。チケットシステムを再設定してください。',
+    },
   },
   ticketClose: {
     message: {
@@ -78,24 +83,22 @@ const loc = {
       'en-US': 'This support channel has been closed.',
       ja: 'このお問い合わせチャンネルは閉じられました。',
     },
-  },
-  error: {
-    role: {
-      'en-US': 'Support team role not found.',
-      ja: 'サポートチームのロールが見つかりません。',
-    },
-    open: {
-      'en-US':
-        'Admin Notice\nOpen tickets category not found. Please reconfigure the ticket system.',
-      ja: '管理者へ\nオープンチケットのカテゴリが見つかりません。チケットシステムを再設定してください。',
-    },
-    closed: {
+    error: {
       'en-US':
         'Closed tickets category or support team role not found. Fallback action was taken.',
       ja: 'クローズカテゴリまたはサポートチームのロールが見つからなかったため、フォールバック動作を行いました。',
     },
   },
-} as const satisfies Record<string, Record<string, Record<Locale, string>>>
+} as const satisfies Record<
+  string,
+  Record<string, Record<SupportedLocale, string>>
+>
+
+const normalizeLocale = (locale: Locale) => {
+  if (Object.keys(loc.cmd.description).includes(locale))
+    return locale as SupportedLocale
+  return 'en-US'
+}
 
 const restError = async (res: TypedResponse<unknown>, errorType: string) => {
   const debug = await inspectResponse(res)
@@ -123,7 +126,7 @@ export const command_ticket_setup = factory.command(
     ]),
   c =>
     c.flags('EPHEMERAL').resDefer(async c => {
-      const userLocale = c.interaction.locale as Locale
+      const userLocale = normalizeLocale(c.interaction.locale)
       const customValue = JSON.stringify([
         c.var.role,
         c.var.open,
@@ -136,26 +139,17 @@ export const command_ticket_setup = factory.command(
         {
           flags: messageFlags('IS_COMPONENTS_V2'),
           components: [
-            makeTextDisplay(
-              loc.ticketOpen.message[userLocale] ??
-                loc.ticketOpen.message['en-US'],
-            ),
+            makeTextDisplay(loc.ticketOpen.message[userLocale]),
             makeActionRow([
               component_ticket_open.component
                 .custom_value(customValue)
-                .label(
-                  loc.ticketOpen.button[userLocale] ??
-                    loc.ticketOpen.button['en-US'],
-                ),
+                .label(loc.ticketOpen.button[userLocale]),
             ]),
           ],
         },
       )
       if (res.ok) await c.followup()
-      else
-        await c.followup(
-          await restError(res, 'Failed to create support channel'),
-        )
+      else await c.followup(await restError(res, 'Setup > POST message'))
     }),
 )
 
@@ -177,11 +171,7 @@ const channelPermission = (
     {
       id: botId,
       type: 1,
-      allow: permissionFlags(
-        'MANAGE_CHANNELS',
-        'VIEW_CHANNEL',
-        'SEND_MESSAGES',
-      ).toString(),
+      allow: permissionFlags('VIEW_CHANNEL', 'SEND_MESSAGES').toString(),
     },
   ]
   if (userId)
@@ -214,7 +204,7 @@ export const component_ticket_open = factory.component(
   async c => {
     if (!c.ref.custom_value || !c.interaction.guild || !c.interaction.member)
       return c.res('Reference Error: Contact the developer')
-    const userLocale = c.interaction.locale as Locale
+    const userLocale = normalizeLocale(c.interaction.locale)
     const [role, open, _closed] = JSON.parse(c.ref.custom_value) as CustomValues
     const isoTime = new Date().toISOString()
     // JSON payload for creating the channel
@@ -245,12 +235,8 @@ export const component_ticket_open = factory.component(
         ? await c.rest('GET', $guilds$_$roles$_, [c.interaction.guild.id, role])
         : null
       if (resRole && !resRole.ok) reconfigureNotice = true
-      if (reconfigureNotice)
-        return c.res(loc.error.open[userLocale] ?? loc.error.open['en-US'])
-      else
-        return c.res(
-          await restError(resCreate, 'Failed to create open channel'),
-        )
+      if (reconfigureNotice) return c.res(loc.ticketOpen.error[userLocale])
+      return c.res(await restError(resCreate, 'Open > Create channel'))
     }
     const openChannelId = (await resCreate.json()).id
     // Send close button
@@ -263,17 +249,11 @@ export const component_ticket_open = factory.component(
       {
         flags: messageFlags('IS_COMPONENTS_V2'),
         components: [
-          makeTextDisplay(
-            loc.ticketClose.message[userLocale] ??
-              loc.ticketClose.message['en-US'],
-          ),
+          makeTextDisplay(loc.ticketClose.message[userLocale]),
           makeActionRow([
             component_ticket_close.component
               .custom_value(c.ref.custom_value)
-              .label(
-                loc.ticketClose.button[userLocale] ??
-                  loc.ticketClose.button['en-US'],
-              ),
+              .label(loc.ticketClose.button[userLocale]),
           ]),
           makeTextDisplay(mention),
         ],
@@ -281,14 +261,10 @@ export const component_ticket_open = factory.component(
     )
     if (!resMessage.ok)
       return c.res(
-        await restError(resMessage, 'Failed to send message in open channel'),
+        await restError(resMessage, 'Open > Send message in new channel'),
       )
     // Return the response to the user
-    return c
-      .flags('EPHEMERAL')
-      .res(
-        loc.ticketOpen.response[userLocale] ?? loc.ticketOpen.response['en-US'],
-      )
+    return c.flags('EPHEMERAL').res(loc.ticketOpen.response[userLocale])
   },
 )
 
@@ -297,7 +273,7 @@ export const component_ticket_close = factory.component(
   async c => {
     if (!c.ref.custom_value || !c.interaction.guild)
       return c.res('Reference Error: Contact the developer')
-    const userLocale = c.interaction.locale as Locale
+    const userLocale = normalizeLocale(c.interaction.locale)
     const [role, _open, closed] = JSON.parse(c.ref.custom_value) as CustomValues
     // JSON payload for modifying the channel
     const json: ModifyChannelJson = {
@@ -354,16 +330,23 @@ export const component_ticket_close = factory.component(
       )
       if (!resRetryModify.ok)
         return c.res(
-          await restError(resRetryModify, 'Failed to modify the channel'),
+          await restError(resRetryModify, 'Close > Retry modify channel'),
         )
-      if (fallbackNotice)
-        return c.res(
-          `${loc.ticketClose.finished[userLocale] ?? loc.ticketClose.finished['en-US']}\n${loc.error.closed[userLocale] ?? loc.error.closed['en-US']}`,
+      if (fallbackNotice) {
+        const resCloseMessage = await c.rest(
+          'POST',
+          $channels$_$messages,
+          [c.interaction.channel.id],
+          `${loc.ticketClose.finished[userLocale]}\n${loc.ticketClose.error[userLocale]}`,
         )
+        if (!resCloseMessage.ok)
+          return c.res(
+            await restError(resCloseMessage, 'Close > Fallback notice'),
+          )
+        return c.update().resDefer(c => c.followup())
+      }
     }
     // Return the interaction
-    return c.res(
-      loc.ticketClose.finished[userLocale] ?? loc.ticketClose.finished['en-US'],
-    )
+    return c.res(loc.ticketClose.finished[userLocale])
   },
 )
