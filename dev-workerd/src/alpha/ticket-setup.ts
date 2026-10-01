@@ -97,7 +97,7 @@ const loc = {
   },
 } as const satisfies Record<string, Record<string, Record<Locale, string>>>
 
-const restError = async (res: TypedResponse<any>, errorType: string) => {
+const restError = async (res: TypedResponse<unknown>, errorType: string) => {
   const debug = await inspectResponse(res)
   console.error(debug.text)
   return `### Error: Contact the developer\n${errorType}\n\`\`\`${debug.message}\`\`\``
@@ -164,6 +164,7 @@ type ModifyChannelJson = RestData<'PATCH', typeof $channels$_>
 
 const channelPermission = (
   everyoneId: string,
+  botId: string,
   userId?: string | null,
   role?: string,
 ) => {
@@ -172,6 +173,11 @@ const channelPermission = (
       id: everyoneId,
       type: 0,
       deny: permissionFlags('VIEW_CHANNEL').toString(),
+    },
+    {
+      id: botId,
+      type: 1,
+      allow: permissionFlags('VIEW_CHANNEL', 'SEND_MESSAGES').toString(),
     },
   ]
   if (userId)
@@ -189,20 +195,32 @@ const channelPermission = (
   return permission
 }
 
+const toHashId = async (str: string) =>
+  Array.from(
+    new Uint8Array(
+      await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)),
+    ),
+  )
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+    .substring(0, 4) // 4-digit hash ID
+
 export const component_ticket_open = factory.component(
   makeButton('to', ['🎫', loc.ticketOpen.button['en-US']]),
   async c => {
-    if (!c.ref.custom_value || !c.interaction.guild || !c.interaction.user)
+    if (!c.ref.custom_value || !c.interaction.guild || !c.interaction.member)
       return c.res('Reference Error: Contact the developer')
     const userLocale = c.interaction.locale as Locale
     const [role, open, _closed] = JSON.parse(c.ref.custom_value) as CustomValues
+    const isoTime = new Date().toISOString()
     // JSON payload for creating the channel
     const json: CreateChannelJson = {
-      name: `open-0001`,
+      name: `open-${isoTime.split('T')[0].replaceAll('-', '').substring(2)}-${await toHashId(isoTime + c.interaction.member.user.id)}`,
       type: channelType.GUILD_TEXT,
       permission_overwrites: channelPermission(
         c.interaction.guild.id,
-        c.interaction.user.id,
+        c.env.DISCORD_APPLICATION_ID,
+        c.interaction.member.user.id,
         role,
       ),
     }
@@ -232,7 +250,7 @@ export const component_ticket_open = factory.component(
     }
     const openChannelId = (await resCreate.json()).id
     // Send close button
-    let mention = `<@${c.interaction.user.id}>`
+    let mention = `<@${c.interaction.member.user.id}>`
     if (role) mention += ` <@&${role}>`
     const resMessage = await c.rest(
       'POST',
@@ -246,7 +264,12 @@ export const component_ticket_open = factory.component(
               loc.ticketClose.message['en-US'],
           ),
           makeActionRow([
-            component_ticket_close.component.custom_value(c.ref.custom_value),
+            component_ticket_close.component
+              .custom_value(c.ref.custom_value)
+              .label(
+                loc.ticketClose.button[userLocale] ??
+                  loc.ticketClose.button['en-US'],
+              ),
           ]),
           makeTextDisplay(mention),
         ],
@@ -266,7 +289,7 @@ export const component_ticket_open = factory.component(
 )
 
 export const component_ticket_close = factory.component(
-  makeButton('to', ['🔒', loc.ticketClose.button['en-US']]),
+  makeButton('tc', ['🔒', loc.ticketClose.button['en-US']]),
   async c => {
     if (!c.ref.custom_value || !c.interaction.guild)
       return c.res('Reference Error: Contact the developer')
@@ -276,6 +299,7 @@ export const component_ticket_close = factory.component(
     const json: ModifyChannelJson = {
       permission_overwrites: channelPermission(
         c.interaction.guild.id,
+        c.env.DISCORD_APPLICATION_ID,
         null,
         role,
       ),
@@ -311,6 +335,7 @@ export const component_ticket_close = factory.component(
       const json: ModifyChannelJson = {
         permission_overwrites: channelPermission(
           c.interaction.guild.id,
+          c.env.DISCORD_APPLICATION_ID,
           null,
           newRole,
         ),
