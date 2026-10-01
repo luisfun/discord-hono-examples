@@ -209,7 +209,7 @@ export const component_ticket_open = factory.component(
     const isoTime = new Date().toISOString()
     // JSON payload for creating the channel
     const json: CreateChannelJson = {
-      name: `open-${isoTime.split('T')[0].replaceAll('-', '').substring(2)}-${await toHashId(isoTime + c.interaction.member.user.id)}`,
+      name: `open-${isoTime.split('T')[0].replaceAll('-', '')}-${await toHashId(isoTime + c.interaction.member.user.id)}`,
       type: channelType.GUILD_TEXT,
       permission_overwrites: channelPermission(
         c.interaction.guild.id,
@@ -271,12 +271,17 @@ export const component_ticket_open = factory.component(
 export const component_ticket_close = factory.component(
   makeButton('tc', ['🔒', loc.ticketClose.button['en-US']]),
   async c => {
-    if (!c.ref.custom_value || !c.interaction.guild)
+    if (
+      !c.ref.custom_value ||
+      !c.interaction.guild ||
+      !c.interaction.channel.name
+    )
       return c.res('Reference Error: Contact the developer')
     const userLocale = normalizeLocale(c.interaction.locale)
     const [role, _open, closed] = JSON.parse(c.ref.custom_value) as CustomValues
     // JSON payload for modifying the channel
     const json: ModifyChannelJson = {
+      name: c.interaction.channel.name.replace(/^open-/, 'closed-'),
       permission_overwrites: channelPermission(
         c.interaction.guild.id,
         c.env.DISCORD_APPLICATION_ID,
