@@ -177,7 +177,11 @@ const channelPermission = (
     {
       id: botId,
       type: 1,
-      allow: permissionFlags('VIEW_CHANNEL', 'SEND_MESSAGES').toString(),
+      allow: permissionFlags(
+        'MANAGE_CHANNELS',
+        'VIEW_CHANNEL',
+        'SEND_MESSAGES',
+      ).toString(),
     },
   ]
   if (userId)
