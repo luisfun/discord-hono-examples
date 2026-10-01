@@ -73,15 +73,15 @@ const loc = {
     message: {
       'en-US':
         '## Support Channel\nPress the button to close this support channel.',
-      ja: '## お問い合わせチャンネル\nボタンを押すと、このお問い合わせチャンネルを閉じます。',
+      ja: '## お問い合わせチャンネル\nボタンを押すと、このお問い合わせを閉じます。',
     },
     button: {
       'en-US': 'Close Ticket',
       ja: 'お問い合わせを閉じる',
     },
     finished: {
-      'en-US': 'This support channel has been closed.',
-      ja: 'このお問い合わせチャンネルは閉じられました。',
+      'en-US': 'This support has been closed.',
+      ja: 'このお問い合わせは閉じられました。',
     },
     error: {
       'en-US':
@@ -312,7 +312,7 @@ export const component_ticket_close = factory.component(
         newClosed = undefined
       }
       // JSON payload for modifying the channel
-      const json: ModifyChannelJson = {
+      const newJson: ModifyChannelJson = {
         permission_overwrites: channelPermission(
           c.interaction.guild.id,
           c.env.DISCORD_APPLICATION_ID,
@@ -320,33 +320,44 @@ export const component_ticket_close = factory.component(
           newRole,
         ),
       }
-      if (newClosed) json.parent_id = newClosed
+      if (newClosed) newJson.parent_id = newClosed
       // Send the request to modify the channel
-      const resRetryModify = await c.rest(
+      const resFallbackModify = await c.rest(
         'PATCH',
         $channels$_,
         [c.interaction.channel.id],
-        json,
+        newJson,
       )
-      if (!resRetryModify.ok)
+      if (!resFallbackModify.ok)
         return c.res(
-          await restError(resRetryModify, 'Close > Retry modify channel'),
+          await restError(resFallbackModify, 'Close > Fallback modify channel'),
         )
       if (fallbackNotice) {
-        const resCloseMessage = await c.rest(
+        const resFallbackCloseMessage = await c.rest(
           'POST',
           $channels$_$messages,
           [c.interaction.channel.id],
           `${loc.ticketClose.finished[userLocale]}\n${loc.ticketClose.error[userLocale]}`,
         )
-        if (!resCloseMessage.ok)
+        if (!resFallbackCloseMessage.ok)
           return c.res(
-            await restError(resCloseMessage, 'Close > Fallback notice'),
+            await restError(
+              resFallbackCloseMessage,
+              'Close > Fallback > Send message',
+            ),
           )
         return c.update().resDefer(c => c.followup())
       }
     }
     // Return the interaction
-    return c.res(loc.ticketClose.finished[userLocale])
+    const resCloseMessage = await c.rest(
+      'POST',
+      $channels$_$messages,
+      [c.interaction.channel.id],
+      loc.ticketClose.finished[userLocale],
+    )
+    if (!resCloseMessage.ok)
+      return c.res(await restError(resCloseMessage, 'Close > Send message'))
+    return c.update().resDefer(c => c.followup())
   },
 )
