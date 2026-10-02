@@ -18,11 +18,11 @@ export const loc = {
     },
     optionOpen: {
       'en-US': 'Open Tickets Category',
-      ja: 'オープンチケットのカテゴリ',
+      ja: 'Openチケットのカテゴリ',
     },
     optionClosed: {
       'en-US': 'Closed Tickets Category',
-      ja: 'クローズドチケットのカテゴリ',
+      ja: 'Closedチケットのカテゴリ',
     },
   },
   open: {
