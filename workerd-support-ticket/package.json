@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "start": "wrangler dev",
-    "test": "vitest",
+    "register": "tsx --env-file=.env src/register.ts",
+    "deploy": "wrangler deploy --minify",
+    "log": "wrangler tail",
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {
