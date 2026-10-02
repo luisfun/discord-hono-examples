@@ -14,7 +14,7 @@ import { loc, normalizeLocale } from './i18n'
 import { type CustomValues, restError } from './utils'
 
 export const command_ticket_setup = factory.command(
-  makeSlashCommand('ticket-setup', loc.cmd.description['en-US'])
+  makeSlashCommand('setup', loc.cmd.description['en-US'])
     .description_localizations(loc.cmd.description)
     .options([
       makeChannelOption('channel', loc.cmd.optionChannel['en-US'])
