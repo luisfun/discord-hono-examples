@@ -13,11 +13,11 @@
 ### Support flow
 
 1. Create a support button (admin `/setup`)
-2. Press the support button (user)
-  A private support channel is created
+2. Press the support button (user)  
+  A private support channel is created  
   If an open category is configured, the channel is created there
-3. Press the button to close the support ticket (user or admin)
-  The channel is hidden from the user but remains available
+3. Press the button to close the support ticket (user or admin)  
+  The channel is hidden from the user but remains available  
   If a closed category is configured, the channel is moved there
 
 ## サーバー管理者
@@ -30,9 +30,9 @@
 ### お問い合わせの流れ
 
 1. お問い合わせボタンを作成（管理者 `/setup`）
-2. お問い合わせボタンを押す（ユーザー）
-  プライベートなお問い合わせチャンネルを作成
+2. お問い合わせボタンを押す（ユーザー）  
+  プライベートなお問い合わせチャンネルを作成  
   openカテゴリの設定があればそちらへ作成
-3. お問い合わせを閉じるボタンを押す（ユーザー or 管理者）
-  ユーザーから見えなくなり、チャンネルは残る
+3. お問い合わせを閉じるボタンを押す（ユーザー or 管理者）  
+  ユーザーから見えなくなり、チャンネルは残る  
   closedカテゴリの設定があればそちらへ移動
