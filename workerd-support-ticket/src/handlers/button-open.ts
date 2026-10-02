@@ -10,7 +10,7 @@ import {
   messageFlags,
 } from 'discord-hono'
 import { factory } from '../init'
-import { component_ticket_close } from './button-close'
+import { button_close } from './button-close'
 import { loc, normalizeLocale } from './i18n'
 import {
   type CreateChannelJson,
@@ -20,8 +20,8 @@ import {
   toHashId,
 } from './utils'
 
-export const component_ticket_open = factory.component(
-  makeButton('to', ['🎫', loc.ticketOpen.button['en-US']]),
+export const button_open = factory.component(
+  makeButton('o', ['🎫', loc.open.button['en-US']]),
   async c => {
     if (!c.ref.custom_value || !c.interaction.guild || !c.interaction.member)
       return c.res('Reference Error: Contact the developer')
@@ -56,7 +56,7 @@ export const component_ticket_open = factory.component(
         ? await c.rest('GET', $guilds$_$roles$_, [c.interaction.guild.id, role])
         : null
       if (resRole && !resRole.ok) reconfigureNotice = true
-      if (reconfigureNotice) return c.res(loc.ticketOpen.error[userLocale])
+      if (reconfigureNotice) return c.res(loc.open.error[userLocale])
       return c.res(await restError(resCreate, 'Open > Create channel'))
     }
     const openChannelId = (await resCreate.json()).id
@@ -70,11 +70,11 @@ export const component_ticket_open = factory.component(
       {
         flags: messageFlags('IS_COMPONENTS_V2'),
         components: [
-          makeTextDisplay(loc.ticketClose.message[userLocale]),
+          makeTextDisplay(loc.close.message[userLocale]),
           makeActionRow([
-            component_ticket_close.component
+            button_close.component
               .custom_value(c.ref.custom_value)
-              .label(loc.ticketClose.button[userLocale]),
+              .label(loc.close.button[userLocale]),
           ]),
           makeTextDisplay(mention),
         ],
@@ -85,6 +85,6 @@ export const component_ticket_open = factory.component(
         await restError(resMessage, 'Open > Send message in new channel'),
       )
     // Return the response to the user
-    return c.flags('EPHEMERAL').res(loc.ticketOpen.response[userLocale])
+    return c.flags('EPHEMERAL').res(loc.open.response[userLocale])
   },
 )

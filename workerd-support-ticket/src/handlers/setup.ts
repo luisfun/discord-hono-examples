@@ -9,7 +9,7 @@ import {
   messageFlags,
 } from 'discord-hono'
 import { factory } from '../init'
-import { component_ticket_open } from './button-open'
+import { button_open } from './button-open'
 import { loc, normalizeLocale } from './i18n'
 import { type CustomValues, restError } from './utils'
 
@@ -46,11 +46,11 @@ export const command_ticket_setup = factory.command(
         {
           flags: messageFlags('IS_COMPONENTS_V2'),
           components: [
-            makeTextDisplay(loc.ticketOpen.message[userLocale]),
+            makeTextDisplay(loc.open.message[userLocale]),
             makeActionRow([
-              component_ticket_open.component
+              button_open.component
                 .custom_value(customValue)
-                .label(loc.ticketOpen.button[userLocale]),
+                .label(loc.open.button[userLocale]),
             ]),
           ],
         },

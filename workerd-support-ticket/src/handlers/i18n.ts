@@ -25,7 +25,7 @@ export const loc = {
       ja: 'クローズドチケットのカテゴリ',
     },
   },
-  ticketOpen: {
+  open: {
     message: {
       'en-US': '## Support\nPress the button to create a support channel.',
       ja: '## お問い合わせ\nボタンを押すと、お問い合わせチャンネルが作成されます。',
@@ -44,7 +44,7 @@ export const loc = {
       ja: '管理者へ\nオープンチケットのカテゴリが見つかりません。チケットシステムを再設定してください。',
     },
   },
-  ticketClose: {
+  close: {
     message: {
       'en-US':
         '## Support Channel\nPress the button to close this support channel.',

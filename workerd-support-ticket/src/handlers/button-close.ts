@@ -13,8 +13,8 @@ import {
   restError,
 } from './utils'
 
-export const component_ticket_close = factory.component(
-  makeButton('tc', ['🔒', loc.ticketClose.button['en-US']]),
+export const button_close = factory.component(
+  makeButton('c', ['🔒', loc.close.button['en-US']]),
   async c => {
     if (
       !c.ref.custom_value ||
@@ -87,7 +87,7 @@ export const component_ticket_close = factory.component(
           'POST',
           $channels$_$messages,
           [c.interaction.channel.id],
-          `${loc.ticketClose.finished[userLocale]}\n${loc.ticketClose.error[userLocale]}`,
+          `${loc.close.finished[userLocale]}\n${loc.close.error[userLocale]}`,
         )
         if (!resFallbackCloseMessage.ok)
           return c.res(
@@ -104,7 +104,7 @@ export const component_ticket_close = factory.component(
       'POST',
       $channels$_$messages,
       [c.interaction.channel.id],
-      loc.ticketClose.finished[userLocale],
+      loc.close.finished[userLocale],
     )
     if (!resCloseMessage.ok)
       return c.res(await restError(resCloseMessage, 'Close > Send message'))
