@@ -40,8 +40,8 @@ export const loc = {
     },
     error: {
       'en-US':
-        'Admin Notice\nOpen tickets category not found. Please reconfigure the ticket system.',
-      ja: '管理者へ\nオープンチケットのカテゴリが見つかりません。チケットシステムを再設定してください。',
+        'Admin Notice\nOpen tickets category or support team role not found. Please reconfigure the ticket system.',
+      ja: '管理者へ\nオープンチケットのカテゴリまたはサポートチームのロールが見つかりません。チケットシステムを再設定してください。',
     },
   },
   close: {
